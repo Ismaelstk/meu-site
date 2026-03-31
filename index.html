@@ -153,7 +153,6 @@ svg.icon-lg{width:24px;height:24px}
 @media print{.back-btn,.bim-tabs,.nav-row,.l-arrow,.topbar{display:none}body{background:#fff}.ld-block,.ld-hero,.l-item{break-inside:avoid;border:1px solid #ddd}}
 @media(max-width:600px){.grades{grid-template-columns:1fr 1fr;gap:10px}.ld-hero{padding:20px 16px}.ld-block{padding:18px 14px}}
 </style>
-  
 </head>
 <body>
 <div class="app" id="app" data-theme="6">
@@ -180,7 +179,7 @@ svg.icon-lg{width:24px;height:24px}
 <!-- ═══ HOME ═══ -->
 <div class="view active" id="v-home">
   <div class="hero">
-    <div class="hero-badge"><svg class="icon icon-sm"><use href="#i-book"/></svg> Material de Apoio </div>
+    <div class="hero-badge"><svg class="icon icon-sm"><use href="#i-book"/></svg> Manual do Professor</div>
     <h1><em>Educação Financeira</em></h1>
     <p>Ensino Fundamental II · 10 aulas por bimestre · Aulas de 50 minutos com conteúdo completo e atividades</p>
   </div>
@@ -198,7 +197,7 @@ svg.icon-lg{width:24px;height:24px}
     <strong>Documentos:</strong> BNCC (2017); ENEF/Plano Diretor (2011); OCDE (2005)<br><br>
     <strong>Recursos digitais:</strong> vidaedinheiro.gov.br · investidor.gov.br · bcb.gov.br/cidadaniafinanceira · Cadernos de Educação Financeira do Banco Central</p>
   </div>
-
+</div>
 
 <!-- ═══ GRADE VIEW ═══ -->
 <div class="view" id="v-grade">
@@ -561,26 +560,12 @@ function openL(g,bi,li){
   document.getElementById('bkBtn').onclick=()=>{cB=bi;openGrade(g)};
   show('v-lesson');
 }
+document.addEventListener('DOMContentLoaded',function(){document.getElementById('footer-year').textContent=new Date().getFullYear();});
 </script>
-  <!-- ── FOOTER ── -->
-<footer style="
-  margin-top: 48px;
-  padding: 24px 20px;
-  border-top: 1px solid var(--border);
-  background: var(--card);
-  text-align: center;
-">
-  <p style="
-    font-family: 'DM Sans', sans-serif;
-    font-size: .78rem;
-    color: var(--text3);
-    letter-spacing: .3px;
-  ">
-    © <span id="footer-year"></span> Ismael Marques · Todos os direitos reservados
+<footer style="margin-top:48px;padding:24px 20px;border-top:1px solid var(--border);background:var(--card);text-align:center">
+  <p style="font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text3);letter-spacing:.3px">
+    © <span id="footer-year"></span> Ismael Marques &middot; Todos os direitos reservados
   </p>
 </footer>
-<script>
-  document.getElementById('footer-year').textContent = new Date().getFullYear();
-</script>
 </body>
 </html>
