@@ -32,6 +32,19 @@ p{font-size:.9rem;color:#6A7F9A;margin-bottom:24px;line-height:1.6}
 <h1>MIRA — Migração de Dados para o Firestore</h1>
 <p>Esta página importa todo o conteúdo do manual de Educação Financeira para o banco de dados Firebase. <strong>Execute apenas uma vez.</strong> Após a migração, pode excluir este arquivo.</p>
 
+<div id="login-section" class="card">
+  <h3>🔐 Login do Administrador</h3>
+  <p style="font-size:.85rem;color:#6A7F9A;margin-bottom:14px">Faça login com sua conta de administrador para executar a migração.</p>
+  <div class="alert-err" id="login-err" style="display:none;background:#FEECEC;border:1px solid #C0392B;color:#C0392B;border-radius:8px;padding:10px 13px;font-size:.83rem;margin-bottom:12px"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div><label style="display:block;font-size:.73rem;font-weight:700;color:#1A3A8F;margin-bottom:5px;text-transform:uppercase">Email</label>
+    <input type="email" id="login-email" placeholder="seu@email.com" style="width:100%;padding:9px 12px;border:1.5px solid #DDD9CF;border-radius:8px;font-size:.88rem;outline:none"></div>
+    <div><label style="display:block;font-size:.73rem;font-weight:700;color:#1A3A8F;margin-bottom:5px;text-transform:uppercase">Senha</label>
+    <input type="password" id="login-senha" placeholder="••••••••" style="width:100%;padding:9px 12px;border:1.5px solid #DDD9CF;border-radius:8px;font-size:.88rem;outline:none"></div>
+  </div>
+  <button class="btn" id="btn-login" onclick="doLogin()">Entrar</button>
+</div>
+<div id="migration-section" style="display:none">
 <div class="warning">
   ⚠️ <strong>Atenção:</strong> Execute esta página logado como administrador do Firebase. A migração sobrescreve os dados existentes no Firestore. Se já migrou antes, os dados serão atualizados com a versão atual do manual.
 </div>
@@ -60,7 +73,8 @@ p{font-size:.9rem;color:#6A7F9A;margin-bottom:24px;line-height:1.6}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, writeBatch, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const cfg={
   apiKey:"AIzaSyD_IoIlMiPvDRoJJWM2_LMg6cZQqcB7tao",
@@ -71,6 +85,7 @@ const cfg={
   appId:"1:989601201413:web:e81c9f2455c908a5594b6c"
 };
 const app = initializeApp(cfg);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
 // ── DATA ─────────────────────────────────────────────────────────────────────
@@ -360,6 +375,34 @@ materiais:["Perguntas do quiz preparadas","Exercícios de revisão impressos"],h
 ]}
 };
 
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('btn-login');
+  const err = document.getElementById('login-err');
+  err.style.display = 'none';
+  if (!email || !senha) { err.textContent = 'Preencha email e senha.'; err.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('migration-section').style.display = 'block';
+    addLog('✓ Login realizado com sucesso. Pronto para migrar.', 'ok');
+  } catch(e) {
+    const msgs = {'auth/invalid-credential':'Email ou senha incorretos.','auth/too-many-requests':'Muitas tentativas. Aguarde.'};
+    err.textContent = msgs[e.code] || 'Erro: ' + e.message;
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+};
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-section').style.display !== 'none') window.doLogin();
+});
+
+
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 const log = document.getElementById('log');
 const bar = document.getElementById('bar');
@@ -493,6 +536,8 @@ window.verifyMigration = async function() {
     addLog('Erro na verificação: ' + e.message, 'err');
   }
 };
+
 </script>
+
 </body>
 </html>
