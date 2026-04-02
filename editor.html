@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA — Editor de Aulas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F8F7F2;--card:#FFFFFF;--card2:#F0EEE8;--border:#DDD9CF;
+  --text:#0F2461;--text2:#1A3A8F;--text3:#6A7F9A;
+  --shadow:0 2px 8px rgba(15,36,97,.08),0 4px 16px rgba(15,36,97,.06);
+  --r:12px;--rs:8px;
+  --pri:#1A3A8F;--pri-bg:#EEF0FB;--pri-t:#0F2461;
+  --gold:#E8B800;--gold-bg:#FFFBE6;--gold-t:#9A7800;
+  --green:#2E9E6B;--green-bg:#E8F5EF;--green-t:#1A6B47;
+  --red:#C0392B;--red-bg:#FEECEC;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--pri);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.topbar-brand{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#fff;display:flex;align-items:center;gap:10px}
+.topbar-brand span{font-size:.72rem;background:rgba(255,255,255,.2);border-radius:20px;padding:2px 10px;font-weight:600;letter-spacing:.5px}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.topbar-user{font-size:.8rem;color:rgba(255,255,255,.8)}
+.btn-logout{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 14px;font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-logout:hover{background:rgba(255,255,255,.25)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 56px)}
+
+/* SIDEBAR */
+.sidebar{background:var(--card);border-right:1px solid var(--border);overflow-y:auto}
+.sidebar-header{padding:16px 18px;border-bottom:1px solid var(--border)}
+.sidebar-header h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:10px}
+.sidebar-header select{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text);outline:none}
+.sidebar-header select:focus{border-color:var(--pri)}
+.bim-section{border-bottom:1px solid var(--border)}
+.bim-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;cursor:pointer;background:var(--bg);transition:background .15s}
+.bim-head:hover{background:var(--pri-bg)}
+.bim-head.active{background:var(--pri-bg)}
+.bim-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;color:var(--pri)}
+.bim-chevron{color:var(--text3);transition:transform .2s;font-size:.7rem}
+.bim-chevron.open{transform:rotate(90deg)}
+.aula-list{display:none}
+.aula-list.open{display:block}
+.aula-item{display:flex;align-items:center;gap:8px;padding:9px 18px 9px 28px;cursor:pointer;font-size:.83rem;color:var(--text2);border-left:3px solid transparent;transition:all .15s}
+.aula-item:hover{background:var(--bg);color:var(--text)}
+.aula-item.active{background:var(--pri-bg);color:var(--pri);border-left-color:var(--pri);font-weight:700}
+.aula-badge{font-size:.65rem;padding:2px 7px;border-radius:10px;font-weight:600;flex-shrink:0}
+.aula-badge-prova{background:#FEE2E2;color:#DC2626}
+.aula-badge-recup{background:#DCFCE7;color:#16A34A}
+
+/* MAIN EDITOR */
+.main{padding:24px;overflow-y:auto}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;color:var(--text3);text-align:center;gap:12px}
+.empty-state svg{opacity:.3}
+.empty-state h3{font-size:1.1rem;color:var(--text2)}
+.empty-state p{font-size:.88rem}
+
+/* EDITOR HEADER */
+.editor-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.editor-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text)}
+.editor-meta{font-size:.8rem;color:var(--text3);margin-top:2px}
+.save-bar{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.save-status{font-size:.8rem;color:var(--text3)}
+.save-status.saving{color:var(--gold)}
+.save-status.saved{color:var(--green)}
+.save-status.error{color:var(--red)}
+
+/* SECTION CARDS */
+.section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title svg{color:var(--pri)}
+
+/* FIELDS */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.72rem;font-weight:700;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text);background:#fff;outline:none;transition:border-color .2s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--pri)}
+.field textarea{resize:vertical;min-height:100px;line-height:1.6}
+.field textarea.tall{min-height:160px}
+
+/* STEPS LIST */
+.steps-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.step-row{display:flex;gap:8px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:7px;background:var(--pri);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:5px}
+.step-row textarea{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;resize:vertical;min-height:52px;outline:none;transition:border-color .2s}
+.step-row textarea:focus{border-color:var(--pri)}
+.btn-remove-step{background:var(--red-bg);color:var(--red);border:1px solid var(--red);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:5px;transition:all .2s}
+.btn-remove-step:hover{background:var(--red);color:#fff}
+
+/* PDF SECTION */
+.pdf-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.pdf-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;gap:10px}
+.pdf-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.pdf-icon{width:36px;height:36px;background:var(--red-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
+.pdf-name{font-size:.85rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pdf-size{font-size:.72rem;color:var(--text3)}
+.pdf-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--pri);background:var(--pri-bg)}
+.upload-zone p{font-size:.85rem;color:var(--text3);margin-top:6px}
+.upload-zone strong{color:var(--pri)}
+#fileInput{display:none}
+.upload-progress{display:none;margin-top:10px}
+.progress-bar{height:6px;background:var(--border);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:var(--pri);border-radius:10px;transition:width .3s}
+.upload-label{font-size:.78rem;color:var(--text3);margin-top:4px;text-align:center}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-pri{background:var(--pri);color:#fff}
+.btn-pri:hover{background:#0F2461}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#1A6B47}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.btn-red:hover{background:var(--red);color:#fff}
+.btn-sm{padding:5px 12px;font-size:.78rem}
+.btn-ghost{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--pri);color:var(--pri)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ALERT */
+.alert{padding:10px 14px;border-radius:8px;font-size:.83rem;margin-bottom:14px;display:none}
+.alert.show{display:block}
+.alert-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+.alert-err{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:.9rem;gap:10px}
+.spinner{width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{border-right:none;border-bottom:1px solid var(--border);max-height:200px;overflow-y:auto}
+}
+
+.topbar{background:var(--pri);padding:0 22px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(15,36,97,.2)}
+.topbar-brand{display:flex;align-items:center;gap:12px}
+.topbar-badge{font-size:.7rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:20px;padding:3px 11px;color:#fff;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.topbar-actions{display:flex;align-items:center;gap:14px}
+.topbar-user{font-size:.8rem;color:rgba(255,255,255,.8);font-weight:500}
+.btn-logout{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-logout:hover{background:rgba(255,255,255,.24)}
+.topbar-link{font-size:.8rem;color:rgba(255,255,255,.8);text-decoration:none;transition:color .2s}
+.topbar-link:hover{color:#fff}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <svg width="90" height="24" viewBox="0 0 110 30" fill="none">
+  <circle cx="15" cy="15" r="13" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/>
+  <circle cx="15" cy="15" r="9" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/>
+  <circle cx="15" cy="15" r="4.5" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/>
+  <circle cx="15" cy="15" r="2" fill="white"/>
+  <line x1="15" y1="1" x2="15" y2="6" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+  <line x1="15" y1="24" x2="15" y2="29" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+  <line x1="1" y1="15" x2="6" y2="15" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+  <line x1="24" y1="15" x2="29" y2="15" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+  <text x="36" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="white" letter-spacing="-0.5">MIRA</text>
+</svg>
+    <span class="topbar-badge">Editor</span>
+  </div>
+  <div class="topbar-actions">
+    <span class="topbar-user" id="userNome"></span>
+    <a href="index.html" class="topbar-link" target="_blank">Ver portal ↗</a>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+  <div class="topbar-actions">
+    <span class="topbar-user" id="userNome"></span>
+    <a href="index.html" target="_blank" style="color:rgba(255,255,255,.7);font-size:.8rem;text-decoration:none">Ver portal ↗</a>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR: lista de bimestres e aulas -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h3>Disciplinas</h3>
+      <select id="disc-sel" onchange="loadBimestres()">
+        <option value="">Selecione uma disciplina...</option>
+      </select>
+    </div>
+    <div id="bim-tree"></div>
+  </aside>
+
+  <!-- MAIN: editor da aula -->
+  <main class="main" id="main-area">
+    <div class="empty-state">
+      <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <h3>Selecione uma aula</h3>
+      <p>Escolha uma disciplina e depois uma aula para começar a editar.</p>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_IoIlMiPvDRoJJWM2_LMg6cZQqcB7tao",
+  authDomain: "mira-b17cb.firebaseapp.com",
+  projectId: "mira-b17cb",
+  storageBucket: "mira-b17cb.firebasestorage.app",
+  messagingSenderId: "989601201413",
+  appId: "1:989601201413:web:e81c9f2455c908a5594b6c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+let currentUser = null;
+let currentDiscId = null;
+let currentBimId = null;
+let currentAulaId = null;
+let currentAulaData = null;
+let saveTimer = null;
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists()) { window.location.href = 'login.html'; return; }
+  const data = snap.data();
+  if (data.status === 'inativo') { alert('Sua conta está inativa. Contate o administrador.'); await signOut(auth); window.location.href = 'login.html'; return; }
+  currentUser = { uid: user.uid, ...data };
+  document.getElementById('userNome').textContent = data.nome || user.email;
+  loadDiscs();
+});
+
+window.doLogout = async () => { await signOut(auth); window.location.href = 'login.html'; };
+
+// ── DISCIPLINES ───────────────────────────────────────────────────────────────
+async function loadDiscs() {
+  const snap = await getDocs(collection(db, 'disciplinas'));
+  const sel = document.getElementById('disc-sel');
+  sel.innerHTML = '<option value="">Selecione uma disciplina...</option>';
+  snap.docs.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.id; o.textContent = (d.data().emoji||'') + ' ' + d.data().nome;
+    sel.appendChild(o);
+  });
+}
+
+// ── BIMESTRES ─────────────────────────────────────────────────────────────────
+window.loadBimestres = async function() {
+  currentDiscId = document.getElementById('disc-sel').value;
+  const tree = document.getElementById('bim-tree');
+  if (!currentDiscId) { tree.innerHTML = ''; return; }
+  tree.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  const bimsSnap = await getDocs(query(collection(db, 'disciplinas', currentDiscId, 'bimestres'), orderBy('ordem')));
+  if (bimsSnap.empty) { tree.innerHTML = '<p style="padding:16px;font-size:.85rem;color:var(--text3)">Nenhum bimestre cadastrado.</p>'; return; }
+
+  let html = '';
+  for (const bim of bimsSnap.docs) {
+    const b = bim.data();
+    const aulasSnap = await getDocs(query(collection(db, 'disciplinas', currentDiscId, 'bimestres', bim.id, 'aulas'), orderBy('ordem')));
+    html += `<div class="bim-section">
+      <div class="bim-head" onclick="toggleBim('bl-${bim.id}','bc-${bim.id}')">
+        <span class="bim-name">${b.nome}</span>
+        <span class="bim-chevron" id="bc-${bim.id}">▶</span>
+      </div>
+      <div class="aula-list" id="bl-${bim.id}">`;
+    aulasSnap.docs.forEach(aula => {
+      const a = aula.data();
+      const badgeHtml = a.tipo === 'prova' ? `<span class="aula-badge aula-badge-prova">Prova</span>` :
+                        a.tipo === 'recup' ? `<span class="aula-badge aula-badge-recup">Recup.</span>` : '';
+      html += `<div class="aula-item" id="aula-${aula.id}" onclick="openAula('${bim.id}','${aula.id}')">
+        ${badgeHtml || '📖'} <span style="flex:1">${a.titulo}</span>
+        ${a.pdfs?.length ? `<span style="font-size:.7rem;color:var(--green)">📎${a.pdfs.length}</span>` : ''}
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+  tree.innerHTML = html;
+};
+
+window.toggleBim = function(listId, chevId) {
+  const list = document.getElementById(listId);
+  const chev = document.getElementById(chevId);
+  list.classList.toggle('open');
+  chev.classList.toggle('open');
+};
+
+// ── OPEN AULA ─────────────────────────────────────────────────────────────────
+window.openAula = async function(bimId, aulaId) {
+  currentBimId = bimId;
+  currentAulaId = aulaId;
+  document.querySelectorAll('.aula-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('aula-' + aulaId)?.classList.add('active');
+
+  const main = document.getElementById('main-area');
+  main.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando aula...</div>';
+
+  const snap = await getDoc(doc(db, 'disciplinas', currentDiscId, 'bimestres', bimId, 'aulas', aulaId));
+  if (!snap.exists()) { main.innerHTML = '<div class="empty-state"><p>Aula não encontrada.</p></div>'; return; }
+  currentAulaData = { id: aulaId, ...snap.data() };
+  renderEditor(currentAulaData);
+};
+
+function setSaveStatus(state, msg) {
+  const el = document.getElementById('save-status');
+  if (!el) return;
+  el.className = 'save-status ' + state;
+  el.textContent = msg;
+}
+
+// ── RENDER EDITOR ─────────────────────────────────────────────────────────────
+function renderEditor(a) {
+  const passos = (a.passos || []).map((p,i) => stepRow(i, p)).join('');
+  const pdfs = (a.pdfs || []).map(pdf => pdfItem(pdf)).join('');
+
+  document.getElementById('main-area').innerHTML = `
+    <div class="editor-header">
+      <div>
+        <div class="editor-title">${a.titulo}</div>
+        <div class="editor-meta">${a.tipo === 'prova' ? '📝 Prova Bimestral' : a.tipo === 'recup' ? '🔄 Recuperação' : '📖 Aula regular'}</div>
+      </div>
+      <div class="save-bar">
+        <span class="save-status" id="save-status"></span>
+        <button class="btn btn-pri" onclick="salvarAula()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Salvar
+        </button>
+      </div>
+    </div>
+
+    <div class="alert alert-ok" id="editor-ok"></div>
+    <div class="alert alert-err" id="editor-err"></div>
+
+    <!-- OBJETIVO -->
+    <div class="section">
+      <div class="section-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Objetivo da Aula
+      </div>
+      <div class="field">
+        <label>Objetivo / Habilidades BNCC</label>
+        <textarea id="f-obj" rows="2">${a.objetivo || ''}</textarea>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO -->
+    <div class="section">
+      <div class="section-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A7 7 0 1012 19"/></svg>
+        Conteúdo para o Professor
+      </div>
+      <div class="field">
+        <label>Texto de apoio (suporta HTML básico: &lt;strong&gt;, &lt;em&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;)</label>
+        <textarea class="tall" id="f-conteudo">${(a.conteudo || '').replace(/<\/p>/g,'</p>\n').replace(/<p>/g,'<p>')}</textarea>
+      </div>
+    </div>
+
+    <!-- PASSOS -->
+    <div class="section">
+      <div class="section-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Desenvolvimento da Aula (50 min)
+      </div>
+      <div class="steps-list" id="steps-list">${passos}</div>
+      <button class="btn btn-ghost btn-sm" onclick="addStep()">+ Adicionar passo</button>
+    </div>
+
+    <!-- AVALIAÇÃO -->
+    <div class="section">
+      <div class="section-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Avaliação
+      </div>
+      <div class="field">
+        <textarea id="f-aval" rows="2">${a.avaliacao || ''}</textarea>
+      </div>
+    </div>
+
+    <!-- MATERIAIS DE TEXTO -->
+    <div class="section">
+      <div class="section-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        Materiais e Referências (texto)
+      </div>
+      <div class="field">
+        <label>Um item por linha</label>
+        <textarea id="f-materiais" rows="4">${(a.materiais || []).join('\n')}</textarea>
+      </div>
+    </div>
+
+    <!-- HABILIDADES -->
+    <div class="section">
+      <div class="section-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Habilidades BNCC/EF
+      </div>
+      <div class="field">
+        <input type="text" id="f-hab" value="${a.hab || ''}" placeholder="Ex: EF06PLA01, EF06MA01">
+      </div>
+    </div>
+
+    <!-- PDFs -->
+    <div class="section">
+      <div class="section-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        PDFs para Download (atividades impressas)
+      </div>
+      <div class="pdf-list" id="pdf-list">${pdfs || '<p style="font-size:.83rem;color:var(--text3)">Nenhum PDF cadastrado ainda.</p>'}</div>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto;display:block;color:var(--pri)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <strong>Clique para selecionar</strong> ou arraste um PDF aqui
+        <p>Apenas arquivos PDF · Máximo 10 MB</p>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf" onchange="uploadPDF(this.files[0])">
+      <div class="upload-progress" id="upload-progress">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="upload-label" id="upload-label">Enviando...</div>
+      </div>
+    </div>
+  `;
+}
+
+function stepRow(i, val) {
+  return `<div class="step-row" id="step-${i}">
+    <div class="step-num">${i+1}</div>
+    <textarea oninput="autoSaveTrigger()">${val}</textarea>
+    <button class="btn-remove-step" onclick="removeStep(${i})" title="Remover">×</button>
+  </div>`;
+}
+
+function pdfItem(pdf) {
+  return `<div class="pdf-item" id="pdf-${pdf.nome.replace(/\s/g,'_')}">
+    <div class="pdf-info">
+      <div class="pdf-icon">📄</div>
+      <div>
+        <div class="pdf-name">${pdf.nome}</div>
+        <div class="pdf-size">${pdf.tamanho || ''}</div>
+      </div>
+    </div>
+    <div class="pdf-actions">
+      <a href="${pdf.url}" target="_blank" class="btn btn-sm btn-ghost">Abrir</a>
+      <button class="btn btn-sm btn-red" onclick="removePDF('${pdf.path}','${pdf.nome}')">Remover</button>
+    </div>
+  </div>`;
+}
+
+// ── STEPS ─────────────────────────────────────────────────────────────────────
+window.addStep = function() {
+  const list = document.getElementById('steps-list');
+  const count = list.querySelectorAll('.step-row').length;
+  const div = document.createElement('div');
+  div.innerHTML = stepRow(count, '');
+  list.appendChild(div.firstElementChild);
+};
+
+window.removeStep = function(i) {
+  const row = document.getElementById('step-' + i);
+  if (row) row.remove();
+  // Renumber
+  document.querySelectorAll('.step-row').forEach((r,idx) => {
+    r.id = 'step-' + idx;
+    r.querySelector('.step-num').textContent = idx + 1;
+    r.querySelector('button').setAttribute('onclick', `removeStep(${idx})`);
+  });
+};
+
+// ── AUTO SAVE TRIGGER ─────────────────────────────────────────────────────────
+window.autoSaveTrigger = function() {
+  setSaveStatus('saving', 'Salvando...');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => salvarAula(true), 2000);
+};
+
+// ── SAVE AULA ─────────────────────────────────────────────────────────────────
+window.salvarAula = async function(auto = false) {
+  if (!currentDiscId || !currentBimId || !currentAulaId) return;
+  setSaveStatus('saving', 'Salvando...');
+
+  const passos = [...document.querySelectorAll('.step-row textarea')].map(t => t.value.trim()).filter(Boolean);
+  const materiais = (document.getElementById('f-materiais')?.value || '').split('\n').map(s => s.trim()).filter(Boolean);
+
+  try {
+    await updateDoc(doc(db, 'disciplinas', currentDiscId, 'bimestres', currentBimId, 'aulas', currentAulaId), {
+      objetivo: document.getElementById('f-obj')?.value || '',
+      conteudo: document.getElementById('f-conteudo')?.value || '',
+      passos,
+      avaliacao: document.getElementById('f-aval')?.value || '',
+      materiais,
+      hab: document.getElementById('f-hab')?.value || '',
+      ultimaEdicao: serverTimestamp(),
+      editadoPor: currentUser.uid,
+    });
+    setSaveStatus('saved', auto ? '✓ Salvo automaticamente' : '✓ Salvo com sucesso');
+    if (!auto) { const ok = document.getElementById('editor-ok'); ok.textContent = 'Aula salva com sucesso!'; ok.classList.add('show'); setTimeout(() => ok.classList.remove('show'), 3000); }
+  } catch(e) {
+    setSaveStatus('error', '✗ Erro ao salvar');
+    const err = document.getElementById('editor-err');
+    err.textContent = 'Erro ao salvar: ' + e.message;
+    err.classList.add('show');
+  }
+};
+
+// ── UPLOAD PDF ────────────────────────────────────────────────────────────────
+window.handleDrop = function(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) uploadPDF(file);
+};
+
+window.uploadPDF = async function(file) {
+  if (!file) return;
+  if (file.type !== 'application/pdf') { alert('Apenas arquivos PDF são aceitos.'); return; }
+  if (file.size > 10 * 1024 * 1024) { alert('O arquivo não pode ter mais de 10 MB.'); return; }
+
+  const progress = document.getElementById('upload-progress');
+  const fill = document.getElementById('progress-fill');
+  const label = document.getElementById('upload-label');
+  progress.style.display = 'block';
+
+  const path = `pdfs/${currentDiscId}/${currentBimId}/${currentAulaId}/${Date.now()}_${file.name}`;
+  const sRef = storageRef(storage, path);
+  const task = uploadBytesResumable(sRef, file);
+
+  task.on('state_changed',
+    snap => {
+      const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+      fill.style.width = pct + '%';
+      label.textContent = `Enviando... ${pct}%`;
+    },
+    err => { label.textContent = 'Erro no upload: ' + err.message; },
+    async () => {
+      const url = await getDownloadURL(task.snapshot.ref);
+      const tamanho = (file.size / 1024).toFixed(0) + ' KB';
+      const pdfData = { nome: file.name, url, path, tamanho, adicionadoEm: new Date().toISOString() };
+
+      // Update Firestore
+      const snap = await getDoc(doc(db, 'disciplinas', currentDiscId, 'bimestres', currentBimId, 'aulas', currentAulaId));
+      const pdfs = [...(snap.data()?.pdfs || []), pdfData];
+      await updateDoc(doc(db, 'disciplinas', currentDiscId, 'bimestres', currentBimId, 'aulas', currentAulaId), { pdfs });
+
+      // Update UI
+      const list = document.getElementById('pdf-list');
+      if (list.querySelector('p')) list.innerHTML = '';
+      const div = document.createElement('div');
+      div.innerHTML = pdfItem(pdfData);
+      list.appendChild(div.firstElementChild);
+
+      progress.style.display = 'none';
+      fill.style.width = '0%';
+      document.getElementById('fileInput').value = '';
+
+      // Refresh sidebar badge
+      loadBimestres();
+      label.textContent = 'Enviando...';
+    }
+  );
+};
+
+window.removePDF = async function(path, nome) {
+  if (!confirm(`Remover o PDF "${nome}"?`)) return;
+  try {
+    await deleteObject(storageRef(storage, path));
+  } catch(e) { console.warn('Storage delete:', e); }
+
+  const snap = await getDoc(doc(db, 'disciplinas', currentDiscId, 'bimestres', currentBimId, 'aulas', currentAulaId));
+  const pdfs = (snap.data()?.pdfs || []).filter(p => p.path !== path);
+  await updateDoc(doc(db, 'disciplinas', currentDiscId, 'bimestres', currentBimId, 'aulas', currentAulaId), { pdfs });
+
+  const key = 'pdf-' + nome.replace(/\s/g,'_');
+  document.getElementById(key)?.remove();
+  const list = document.getElementById('pdf-list');
+  if (!list.querySelector('.pdf-item')) list.innerHTML = '<p style="font-size:.83rem;color:var(--text3)">Nenhum PDF cadastrado ainda.</p>';
+  loadBimestres();
+};
+
+// Ctrl+S save
+document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); salvarAula(); }});
+</script>
+</body>
+</html>
