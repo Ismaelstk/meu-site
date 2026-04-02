@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA — Painel Administrador</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F8F7F2;--card:#FFFFFF;--card2:#F0EEE8;--border:#DDD9CF;
+  --text:#0F2461;--text2:#1A3A8F;--text3:#6A7F9A;
+  --shadow:0 2px 8px rgba(15,36,97,.08),0 4px 16px rgba(15,36,97,.06);
+  --r:12px;--rs:8px;
+  --pri:#1A3A8F;--pri-bg:#EEF0FB;--pri-t:#0F2461;
+  --gold:#E8B800;--gold-bg:#FFFBE6;--gold-t:#9A7800;
+  --green:#2E9E6B;--green-bg:#E8F5EF;--green-t:#1A6B47;
+  --red:#C0392B;--red-bg:#FEECEC;
+  --orange:#D97706;--orange-bg:#FEF3C7;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOPBAR */
+.topbar{background:var(--pri);padding:0 22px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(15,36,97,.2)}
+.topbar-brand{display:flex;align-items:center;gap:12px}
+.topbar-badge{font-size:.7rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:20px;padding:3px 11px;color:#fff;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.topbar-actions{display:flex;align-items:center;gap:14px}
+.topbar-user{font-size:.8rem;color:rgba(255,255,255,.8)}
+.topbar-link{font-size:.8rem;color:rgba(255,255,255,.8);text-decoration:none}
+.topbar-link:hover{color:#fff}
+.btn-logout{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-logout:hover{background:rgba(255,255,255,.24)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 54px)}
+
+/* SIDEBAR */
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px 0}
+.sidebar-label{font-size:.67rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;padding:8px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:10px 18px;cursor:pointer;font-size:.86rem;color:var(--text2);border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{background:var(--pri-bg);color:var(--pri);border-left-color:var(--pri);font-weight:700}
+.nav-badge{background:var(--orange);color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;font-weight:700;margin-left:auto}
+
+/* MAIN */
+.main{padding:26px;overflow-y:auto}
+.page{display:none}.page.active{display:block}
+.page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.35rem;font-weight:800;margin-bottom:4px}
+.page-sub{font-size:.84rem;color:var(--text3);margin-bottom:22px}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+.stat-n{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.9rem;font-weight:900;color:var(--pri);line-height:1}
+.stat-l{font-size:.72rem;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--pri);color:#fff;padding:9px 13px;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;font-size:.73rem;font-weight:700;letter-spacing:.4px}
+td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:nth-child(even) td{background:var(--bg)}
+
+/* BADGES */
+.badge{display:inline-block;font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase}
+.badge-admin{background:var(--pri-bg);color:var(--pri)}
+.badge-colab{background:var(--green-bg);color:var(--green-t)}
+.badge-ativo{background:#DCFCE7;color:#16A34A}
+.badge-inativo{background:#FEE2E2;color:#DC2626}
+.badge-pendente{background:var(--orange-bg);color:var(--orange)}
+.badge-publicado{background:var(--green-bg);color:var(--green-t)}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-grid.c1{grid-template-columns:1fr}
+.field label{display:block;font-size:.72rem;font-weight:700;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.field input,.field select,.field textarea{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--text);background:#fff;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--pri)}
+.field textarea{resize:vertical;min-height:70px}
+
+/* ALERTS */
+.alert{padding:9px 13px;border-radius:8px;font-size:.82rem;margin-bottom:12px;display:none}
+.alert.show{display:block}
+.alert-ok{background:var(--green-bg);color:var(--green-t);border:1px solid var(--green)}
+.alert-err{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{background:var(--pri-t)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1A6B47}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}.btn-red:hover{background:var(--red);color:#fff}
+.btn-ghost{background:var(--card2);color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--pri);color:var(--pri)}
+.btn-orange{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange)}.btn-orange:hover{background:var(--orange);color:#fff}
+.btn-sm{padding:5px 11px;font-size:.76rem}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(15,36,97,.45);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-ov.open{display:flex}
+.modal{background:var(--card);border-radius:var(--r);padding:26px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(15,36,97,.2);max-height:88vh;overflow-y:auto}
+.modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;margin-bottom:18px}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* DISC LIST */
+.disc-item{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px}
+.disc-name{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.92rem}
+.disc-meta{font-size:.76rem;color:var(--text3);margin-top:2px}
+
+/* TREE */
+.tree-bim{background:var(--pri-bg);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;overflow:hidden}
+.tree-bim-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;cursor:pointer}
+.tree-bim-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.87rem;color:var(--pri)}
+.tree-bim-body{padding:8px 15px 12px;display:none}
+.tree-bim-body.open{display:block}
+.tree-aula{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:5px;font-size:.83rem}
+
+/* APPROVAL CARDS */
+.aprov-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.aprov-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.aprov-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.92rem}
+.aprov-meta{font-size:.76rem;color:var(--text3);margin-top:2px}
+.aprov-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.aprov-content{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:.83rem;max-height:140px;overflow-y:auto;margin-bottom:8px;line-height:1.65}
+.aprov-label{font-size:.7rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+
+.loading{display:flex;align-items:center;gap:10px;justify-content:center;padding:32px;color:var(--text3);font-size:.87rem}
+.spinner{width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite}
+.empty-box{text-align:center;padding:40px;color:var(--text3)}
+.empty-box p{font-size:1.6rem;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <svg width="80" height="22" viewBox="0 0 110 30" fill="none">
+      <circle cx="15" cy="15" r="13" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/>
+      <circle cx="15" cy="15" r="9" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/>
+      <circle cx="15" cy="15" r="4.5" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/>
+      <circle cx="15" cy="15" r="2" fill="white"/>
+      <line x1="15" y1="1" x2="15" y2="6" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="15" y1="24" x2="15" y2="29" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="1" y1="15" x2="6" y2="15" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="24" y1="15" x2="29" y2="15" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+      <text x="36" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="white" letter-spacing="-0.5">MIRA</text>
+    </svg>
+    <span class="topbar-badge">Admin</span>
+  </div>
+  <div class="topbar-actions">
+    <span class="topbar-user" id="userEmail"></span>
+    <a href="index.html" class="topbar-link" target="_blank">Ver portal ↗</a>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Painel</div>
+    <div class="nav-item active" id="nav-dashboard" onclick="goTo('dashboard')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="sidebar-label" style="margin-top:8px">Usuários</div>
+    <div class="nav-item" id="nav-usuarios" onclick="goTo('usuarios')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Professores
+    </div>
+    <div class="sidebar-label" style="margin-top:8px">Conteúdo</div>
+    <div class="nav-item" id="nav-disciplinas" onclick="goTo('disciplinas')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M4 19.5V4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5z"/></svg>
+      Disciplinas
+    </div>
+    <div class="nav-item" id="nav-estrutura" onclick="goTo('estrutura')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Bimestres e Aulas
+    </div>
+    <div class="nav-item" id="nav-aprovacoes" onclick="goTo('aprovacoes')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Aprovações <span class="nav-badge" id="aprov-badge" style="display:none">0</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Visão geral do sistema MIRA</div>
+      <div class="stats">
+        <div class="stat-card"><div class="stat-n" id="st-users">—</div><div class="stat-l">Professores</div></div>
+        <div class="stat-card"><div class="stat-n" id="st-discs">—</div><div class="stat-l">Disciplinas</div></div>
+        <div class="stat-card"><div class="stat-n" id="st-aulas">—</div><div class="stat-l">Aulas</div></div>
+        <div class="stat-card"><div class="stat-n" id="st-pend">—</div><div class="stat-l">Pendentes</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Acesso rápido</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-pri" onclick="goTo('usuarios')">+ Cadastrar professor</button>
+          <button class="btn btn-ghost" onclick="goTo('disciplinas')">Gerenciar disciplinas</button>
+          <button class="btn btn-ghost" onclick="goTo('estrutura')">Gerenciar aulas</button>
+          <button class="btn btn-orange" onclick="goTo('aprovacoes')">Ver aprovações pendentes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div class="page" id="page-usuarios">
+      <div class="page-title">Professores</div>
+      <div class="page-sub">Cadastre e gerencie os professores com acesso ao MIRA</div>
+      <div class="card">
+        <div class="card-title">Cadastrar novo professor</div>
+        <div class="alert alert-ok" id="u-ok"></div>
+        <div class="alert alert-err" id="u-err"></div>
+        <div class="form-grid">
+          <div class="field"><label>Nome completo</label><input type="text" id="u-nome" placeholder="Maria Silva"></div>
+          <div class="field"><label>Email</label><input type="email" id="u-email" placeholder="professor@escola.com"></div>
+          <div class="field"><label>Senha inicial</label><input type="password" id="u-senha" placeholder="Mínimo 6 caracteres"></div>
+          <div class="field"><label>Perfil</label>
+            <select id="u-role">
+              <option value="colaborador">Colaborador — edita aulas (com aprovação)</option>
+              <option value="admin">Administrador — acesso total</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-green" onclick="cadastrarUser()">+ Cadastrar professor</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Professores cadastrados</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="users-tbody"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISCIPLINAS -->
+    <div class="page" id="page-disciplinas">
+      <div class="page-title">Disciplinas</div>
+      <div class="page-sub">Gerencie as disciplinas do portal MIRA</div>
+      <div class="card">
+        <div class="card-title">Adicionar disciplina</div>
+        <div class="alert alert-ok" id="d-ok"></div>
+        <div class="alert alert-err" id="d-err"></div>
+        <div class="form-grid">
+          <div class="field"><label>Nome</label><input type="text" id="d-nome" placeholder="Ex: Matemática"></div>
+          <div class="field"><label>Séries</label><input type="text" id="d-series" placeholder="Ex: 6º ao 9º Ano"></div>
+          <div class="field"><label>Descrição</label><input type="text" id="d-desc" placeholder="Resumo da disciplina"></div>
+          <div class="field"><label>Emoji</label><input type="text" id="d-emoji" placeholder="Ex: 📐"></div>
+        </div>
+        <button class="btn btn-green" onclick="addDisc()">+ Adicionar disciplina</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Disciplinas ativas</div>
+        <div id="disc-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ESTRUTURA -->
+    <div class="page" id="page-estrutura">
+      <div class="page-title">Bimestres e Aulas</div>
+      <div class="page-sub">Adicione ou remova bimestres e aulas de cada disciplina</div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="field"><label>Selecionar disciplina</label>
+          <select id="struct-disc" onchange="loadStruct()">
+            <option value="">Escolha uma disciplina...</option>
+          </select>
+        </div>
+      </div>
+      <div id="struct-area"></div>
+    </div>
+
+    <!-- APROVAÇÕES -->
+    <div class="page" id="page-aprovacoes">
+      <div class="page-title">Aprovações</div>
+      <div class="page-sub">Sugestões de colaboradores aguardando revisão</div>
+      <div id="aprov-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL EDITAR USUÁRIO -->
+<div class="modal-ov" id="modal-user">
+  <div class="modal">
+    <div class="modal-title">Editar professor</div>
+    <div class="form-grid c1">
+      <div class="field"><label>Nome</label><input type="text" id="eu-nome"></div>
+      <div class="field"><label>Perfil</label>
+        <select id="eu-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select>
+      </div>
+      <div class="field"><label>Status</label>
+        <select id="eu-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-pri" onclick="saveUser()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BIMESTRE -->
+<div class="modal-ov" id="modal-bim">
+  <div class="modal">
+    <div class="modal-title">Adicionar bimestre</div>
+    <div class="form-grid c1">
+      <div class="field"><label>Nome</label><input type="text" id="nb-nome" placeholder="Ex: 1º Bimestre"></div>
+      <div class="field"><label>Tema / Unidade temática</label><input type="text" id="nb-tema" placeholder="Ex: Planejamento Financeiro"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-bim')">Cancelar</button>
+      <button class="btn btn-green" onclick="saveBim()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AULA -->
+<div class="modal-ov" id="modal-aula">
+  <div class="modal">
+    <div class="modal-title">Adicionar aula</div>
+    <div class="form-grid c1">
+      <div class="field"><label>Título</label><input type="text" id="na-titulo" placeholder="Ex: Introdução à Educação Financeira"></div>
+      <div class="field"><label>Objetivo</label><input type="text" id="na-obj" placeholder="Ex: Compreender... (EF06PLA01)"></div>
+      <div class="field"><label>Tipo</label>
+        <select id="na-tipo">
+          <option value="normal">Aula normal</option>
+          <option value="prova">Prova bimestral</option>
+          <option value="recup">Recuperação</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-aula')">Cancelar</button>
+      <button class="btn btn-green" onclick="saveAula()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyD_IoIlMiPvDRoJJWM2_LMg6cZQqcB7tao",authDomain:"mira-b17cb.firebaseapp.com",projectId:"mira-b17cb",storageBucket:"mira-b17cb.firebasestorage.app",messagingSenderId:"989601201413",appId:"1:989601201413:web:e81c9f2455c908a5594b6c"};
+const app = initializeApp(cfg);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let ME = null;
+let editingUserId = null;
+let currentDiscId = null;
+let currentBimId = null;
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async u => {
+  if (!u) { window.location.href = 'login.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', u.uid));
+  if (!snap.exists() || snap.data().role !== 'admin') { window.location.href = 'login.html'; return; }
+  ME = { uid: u.uid, ...snap.data() };
+  document.getElementById('userEmail').textContent = ME.nome || u.email;
+  loadDashboard();
+  loadUsers();
+  loadDiscs();
+  loadAprovCount();
+});
+
+window.doLogout = async () => { await signOut(auth); window.location.href = 'login.html'; };
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+window.goTo = function(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'aprovacoes') loadAprov();
+};
+
+window.closeModal = function(id) {
+  document.getElementById(id).classList.remove('open');
+};
+
+document.querySelectorAll('.modal-ov').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const [uSnap, dSnap] = await Promise.all([
+      getDocs(collection(db, 'usuarios')),
+      getDocs(collection(db, 'disciplinas'))
+    ]);
+    document.getElementById('st-users').textContent = uSnap.size;
+    document.getElementById('st-discs').textContent = dSnap.size;
+    let aulas = 0, pend = 0;
+    for (const d of dSnap.docs) {
+      const bSnap = await getDocs(collection(db, 'disciplinas', d.id, 'bimestres'));
+      for (const b of bSnap.docs) {
+        const aSnap = await getDocs(collection(db, 'disciplinas', d.id, 'bimestres', b.id, 'aulas'));
+        aulas += aSnap.size;
+        aSnap.forEach(a => { if (a.data().status === 'pendente') pend++; });
+      }
+    }
+    document.getElementById('st-aulas').textContent = aulas;
+    document.getElementById('st-pend').textContent = pend;
+  } catch(e) { console.error(e); }
+}
+
+// ── APPROVAL COUNT BADGE ──────────────────────────────────────────────────────
+async function loadAprovCount() {
+  try {
+    const dSnap = await getDocs(collection(db, 'disciplinas'));
+    let count = 0;
+    for (const d of dSnap.docs) {
+      const bSnap = await getDocs(collection(db, 'disciplinas', d.id, 'bimestres'));
+      for (const b of bSnap.docs) {
+        const aSnap = await getDocs(collection(db, 'disciplinas', d.id, 'bimestres', b.id, 'aulas'));
+        aSnap.forEach(a => {
+          const data = a.data();
+          if (data.status === 'pendente') count++;
+          if ((data.pdfs || []).some(p => p.status === 'pendente')) count++;
+        });
+      }
+    }
+    const badge = document.getElementById('aprov-badge');
+    if (count > 0) { badge.textContent = count; badge.style.display = 'inline'; }
+    else badge.style.display = 'none';
+  } catch(e) {}
+}
+
+// ── USERS ─────────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+  const snap = await getDocs(collection(db, 'usuarios'));
+  if (snap.empty) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px">Nenhum professor cadastrado.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = snap.docs.map(d => {
+    const u = d.data();
+    return `<tr>
+      <td><strong>${u.nome||'—'}</strong></td>
+      <td style="font-size:.82rem">${u.email||'—'}</td>
+      <td><span class="badge badge-${u.role==='admin'?'admin':'colab'}">${u.role==='admin'?'Admin':'Colaborador'}</span></td>
+      <td><span class="badge badge-${u.status==='inativo'?'inativo':'ativo'}">${u.status==='inativo'?'Inativo':'Ativo'}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-ghost" onclick="editUser('${d.id}','${(u.nome||'').replace(/'/g,'')}','${u.role}','${u.status||'ativo'}')">Editar</button>
+        <button class="btn btn-sm btn-red" onclick="delUser('${d.id}')">Remover</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.cadastrarUser = async function() {
+  const nome = document.getElementById('u-nome').value.trim();
+  const email = document.getElementById('u-email').value.trim();
+  const senha = document.getElementById('u-senha').value;
+  const role = document.getElementById('u-role').value;
+  const ok = document.getElementById('u-ok');
+  const err = document.getElementById('u-err');
+  ok.classList.remove('show'); err.classList.remove('show');
+  if (!nome||!email||!senha) { err.textContent='Preencha todos os campos.'; err.classList.add('show'); return; }
+  if (senha.length < 6) { err.textContent='Senha mínimo 6 caracteres.'; err.classList.add('show'); return; }
+  try {
+    // Use secondary app instance to avoid signing out current admin
+    const app2 = initializeApp(cfg, 'secondary-' + Date.now());
+    const auth2 = getAuth(app2);
+    const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    const cred = await createUserWithEmailAndPassword(auth2, email, senha);
+    await setDoc(doc(db, 'usuarios', cred.user.uid), { nome, email, role, status: 'ativo', criadoEm: serverTimestamp() });
+    await auth2.signOut();
+    ok.textContent = `Professor "${nome}" cadastrado!`;
+    ok.classList.add('show');
+    ['u-nome','u-email','u-senha'].forEach(id => document.getElementById(id).value = '');
+    loadUsers();
+    loadDashboard();
+  } catch(e) {
+    const msgs = {'auth/email-already-in-use':'Email já em uso.'};
+    err.textContent = msgs[e.code] || 'Erro: '+e.message;
+    err.classList.add('show');
+  }
+};
+
+window.editUser = function(uid, nome, role, status) {
+  editingUserId = uid;
+  document.getElementById('eu-nome').value = nome;
+  document.getElementById('eu-role').value = role;
+  document.getElementById('eu-status').value = status;
+  document.getElementById('modal-user').classList.add('open');
+};
+
+window.saveUser = async function() {
+  if (!editingUserId) return;
+  await updateDoc(doc(db,'usuarios',editingUserId),{
+    nome: document.getElementById('eu-nome').value,
+    role: document.getElementById('eu-role').value,
+    status: document.getElementById('eu-status').value
+  });
+  closeModal('modal-user');
+  loadUsers();
+};
+
+window.delUser = async function(uid) {
+  if (!confirm('Remover este professor?')) return;
+  await deleteDoc(doc(db,'usuarios',uid));
+  loadUsers(); loadDashboard();
+};
+
+// ── DISCIPLINES ───────────────────────────────────────────────────────────────
+async function loadDiscs() {
+  const snap = await getDocs(collection(db,'disciplinas'));
+  const list = document.getElementById('disc-list');
+  const sel = document.getElementById('struct-disc');
+  sel.innerHTML = '<option value="">Escolha uma disciplina...</option>';
+  snap.docs.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.id; o.textContent = (d.data().emoji||'') + ' ' + d.data().nome;
+    sel.appendChild(o);
+  });
+  if (snap.empty) { list.innerHTML = '<p style="font-size:.85rem;color:var(--text3)">Nenhuma disciplina.</p>'; return; }
+  list.innerHTML = snap.docs.map(d => {
+    const disc = d.data();
+    return `<div class="disc-item">
+      <div><div class="disc-name">${disc.emoji||'📚'} ${disc.nome}</div><div class="disc-meta">${disc.series||''} · ${disc.descricao||''}</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-ghost" onclick="editDisc('${d.id}','${(disc.nome||'').replace(/'/g,'')}')">Editar</button>
+        <button class="btn btn-sm btn-red" onclick="delDisc('${d.id}')">Remover</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.addDisc = async function() {
+  const nome=document.getElementById('d-nome').value.trim();
+  const ok=document.getElementById('d-ok'), err=document.getElementById('d-err');
+  ok.classList.remove('show'); err.classList.remove('show');
+  if (!nome) { err.textContent='Informe o nome.'; err.classList.add('show'); return; }
+  await addDoc(collection(db,'disciplinas'),{
+    nome, series:document.getElementById('d-series').value.trim(),
+    descricao:document.getElementById('d-desc').value.trim(),
+    emoji:document.getElementById('d-emoji').value.trim(),
+    ativa:true, ordem:Date.now(), criadoEm:serverTimestamp()
+  });
+  ok.textContent=`Disciplina "${nome}" adicionada!`; ok.classList.add('show');
+  ['d-nome','d-series','d-desc','d-emoji'].forEach(id=>document.getElementById(id).value='');
+  loadDiscs(); loadDashboard();
+};
+
+window.editDisc = function(id, nome) {
+  const n=prompt('Nome da disciplina:',nome);
+  if(n===null)return;
+  updateDoc(doc(db,'disciplinas',id),{nome:n});
+  setTimeout(loadDiscs,500);
+};
+
+window.delDisc = async function(id) {
+  if(!confirm('Remover esta disciplina?'))return;
+  await deleteDoc(doc(db,'disciplinas',id));
+  loadDiscs(); loadDashboard();
+};
+
+// ── STRUCTURE ─────────────────────────────────────────────────────────────────
+window.loadStruct = async function() {
+  const discId = document.getElementById('struct-disc').value;
+  currentDiscId = discId;
+  const area = document.getElementById('struct-area');
+  if (!discId) { area.innerHTML=''; return; }
+  area.innerHTML='<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  const bimsSnap = await getDocs(query(collection(db,'disciplinas',discId,'bimestres'),orderBy('ordem')));
+  let html=`<div class="card"><div class="card-title">Estrutura <button class="btn btn-sm btn-green" onclick="openModalBim()">+ Bimestre</button></div>`;
+  if(bimsSnap.empty){
+    html+='<p style="font-size:.85rem;color:var(--text3);text-align:center;padding:20px">Nenhum bimestre. Clique em "+ Bimestre".</p>';
+  } else {
+    for(const bim of bimsSnap.docs){
+      const b=bim.data();
+      const aulasSnap=await getDocs(query(collection(db,'disciplinas',discId,'bimestres',bim.id,'aulas'),orderBy('ordem')));
+      html+=`<div class="tree-bim">
+        <div class="tree-bim-hd" onclick="toggleTree('tb-${bim.id}')">
+          <span class="tree-bim-title">📅 ${b.nome} <span style="font-weight:400;color:var(--text3);font-size:.76rem">— ${b.tema||''}</span></span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openModalAula('${bim.id}')">+ Aula</button>
+            <button class="btn btn-sm btn-red" onclick="event.stopPropagation();delBim('${bim.id}')">Remover</button>
+          </div>
+        </div>
+        <div class="tree-bim-body" id="tb-${bim.id}">`;
+      if(aulasSnap.empty){
+        html+='<p style="font-size:.8rem;color:var(--text3)">Nenhuma aula.</p>';
+      } else {
+        const sorted=aulasSnap.docs.sort((a,b)=>(a.data().ordem||0)-(b.data().ordem||0));
+        sorted.forEach(aula=>{
+          const a=aula.data();
+          const ico=a.tipo==='prova'?'📝':a.tipo==='recup'?'🔄':'📖';
+          html+=`<div class="tree-aula"><span>${ico} ${a.titulo}</span><button class="btn btn-sm btn-red" onclick="delAula('${bim.id}','${aula.id}')">Remover</button></div>`;
+        });
+      }
+      html+=`</div></div>`;
+    }
+  }
+  html+='</div>';
+  area.innerHTML=html;
+};
+
+window.toggleTree=function(id){document.getElementById(id)?.classList.toggle('open');};
+
+window.openModalBim=function(){
+  document.getElementById('nb-nome').value='';
+  document.getElementById('nb-tema').value='';
+  document.getElementById('modal-bim').classList.add('open');
+};
+
+window.saveBim=async function(){
+  const nome=document.getElementById('nb-nome').value.trim();
+  if(!nome||!currentDiscId)return;
+  const bimsSnap=await getDocs(collection(db,'disciplinas',currentDiscId,'bimestres'));
+  await addDoc(collection(db,'disciplinas',currentDiscId,'bimestres'),{
+    nome,tema:document.getElementById('nb-tema').value.trim(),
+    ordem:bimsSnap.size+1,criadoEm:serverTimestamp()
+  });
+  closeModal('modal-bim');
+  loadStruct();
+};
+
+window.delBim=async function(bimId){
+  if(!confirm('Remover este bimestre e todas as suas aulas?'))return;
+  const aulasSnap=await getDocs(collection(db,'disciplinas',currentDiscId,'bimestres',bimId,'aulas'));
+  for(const a of aulasSnap.docs)await deleteDoc(a.ref);
+  await deleteDoc(doc(db,'disciplinas',currentDiscId,'bimestres',bimId));
+  loadStruct();
+};
+
+window.openModalAula=function(bimId){
+  currentBimId=bimId;
+  document.getElementById('na-titulo').value='';
+  document.getElementById('na-obj').value='';
+  document.getElementById('na-tipo').value='normal';
+  document.getElementById('modal-aula').classList.add('open');
+};
+
+window.saveAula=async function(){
+  const titulo=document.getElementById('na-titulo').value.trim();
+  if(!titulo||!currentDiscId||!currentBimId)return;
+  const aulasSnap=await getDocs(collection(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas'));
+  await addDoc(collection(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas'),{
+    titulo,objetivo:document.getElementById('na-obj').value.trim(),
+    tipo:document.getElementById('na-tipo').value||'normal',
+    ordem:aulasSnap.size+1,conteudo:'',passos:[],atividades:[],materiais:[],pdfs:[],criadoEm:serverTimestamp()
+  });
+  closeModal('modal-aula');
+  loadStruct();
+};
+
+window.delAula=async function(bimId,aulaId){
+  if(!confirm('Remover esta aula?'))return;
+  await deleteDoc(doc(db,'disciplinas',currentDiscId,'bimestres',bimId,'aulas',aulaId));
+  loadStruct();
+};
+
+// ── APPROVALS ─────────────────────────────────────────────────────────────────
+async function loadAprov() {
+  const container = document.getElementById('aprov-list');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Buscando pendências...</div>';
+  try {
+    const dSnap = await getDocs(collection(db,'disciplinas'));
+    let items = [];
+    for (const d of dSnap.docs) {
+      const bSnap = await getDocs(collection(db,'disciplinas',d.id,'bimestres'));
+      for (const b of bSnap.docs) {
+        const aSnap = await getDocs(collection(db,'disciplinas',d.id,'bimestres',b.id,'aulas'));
+        for (const aula of aSnap.docs) {
+          const data = aula.data();
+          if (data.status === 'pendente') {
+            items.push({type:'aula', discId:d.id, discNome:d.data().nome, bimId:b.id, bimNome:b.data().nome, aulaId:aula.id, titulo:data.titulo, data});
+          }
+          const pdfsPend = (data.pdfs||[]).filter(p=>p.status==='pendente');
+          if (pdfsPend.length) {
+            items.push({type:'pdf', discId:d.id, discNome:d.data().nome, bimId:b.id, bimNome:b.data().nome, aulaId:aula.id, titulo:data.titulo, pdfs:pdfsPend, data});
+          }
+        }
+      }
+    }
+
+    // Update badge
+    const badge = document.getElementById('aprov-badge');
+    if (items.length > 0) { badge.textContent = items.length; badge.style.display='inline'; }
+    else badge.style.display='none';
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="empty-box"><p>✅</p><p style="color:var(--text3)">Nenhuma sugestão pendente.</p></div>';
+      return;
+    }
+
+    container.innerHTML = items.map((item, idx) => {
+      if (item.type === 'pdf') {
+        return `<div class="aprov-card">
+          <div class="aprov-header">
+            <div>
+              <div class="aprov-title">📄 PDF Pendente — ${item.titulo}</div>
+              <div class="aprov-meta">${item.discNome} · ${item.bimNome}</div>
+            </div>
+          </div>
+          ${item.pdfs.map(pdf=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:8px">
+            <span style="font-size:1.2rem">📄</span>
+            <div style="flex:1"><div style="font-weight:600;font-size:.84rem">${pdf.nome}</div><div style="font-size:.71rem;color:var(--text3)">${pdf.tamanho||''}</div></div>
+            <a href="${pdf.url}" target="_blank" class="btn btn-sm btn-ghost">Ver</a>
+            <button class="btn btn-sm btn-green" onclick="aprovPDF('${item.discId}','${item.bimId}','${item.aulaId}','${pdf.path}')">✓ Aprovar</button>
+            <button class="btn btn-sm btn-red" onclick="rejPDF('${item.discId}','${item.bimId}','${item.aulaId}','${pdf.path}')">✗ Rejeitar</button>
+          </div>`).join('')}
+        </div>`;
+      }
+      // type === 'aula'
+      const d = item.data;
+      return `<div class="aprov-card">
+        <div class="aprov-header">
+          <div>
+            <div class="aprov-title">✏️ ${item.titulo}</div>
+            <div class="aprov-meta">${item.discNome} · ${item.bimNome}</div>
+          </div>
+          <div class="aprov-actions">
+            <a href="editor.html" class="btn btn-sm btn-ghost" target="_blank">Abrir no editor</a>
+            <button class="btn btn-sm btn-green" onclick="aprovAula('${item.discId}','${item.bimId}','${item.aulaId}')">✓ Aprovar e publicar</button>
+            <button class="btn btn-sm btn-red" onclick="rejAula('${item.discId}','${item.bimId}','${item.aulaId}')">✗ Rejeitar</button>
+          </div>
+        </div>
+        ${d.sug_conteudo?`<div class="aprov-label">Conteúdo sugerido:</div><div class="aprov-content">${d.sug_conteudo}</div>`:''}
+        ${d.sug_passos&&d.sug_passos.length?`<div class="aprov-label">Passos sugeridos (${d.sug_passos.length}):</div><div class="aprov-content">${d.sug_passos.map((p,i)=>`<p><strong>${i+1}.</strong> ${p}</p>`).join('')}</div>`:''}
+        ${d.sug_atividades&&d.sug_atividades.length?`<div class="aprov-label">Atividades sugeridas:</div><div class="aprov-content">${(typeof d.sug_atividades[0]==='string'?d.sug_atividades.join('<br>'):'...')}</div>`:''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:8px;padding:14px;color:var(--red);font-size:.85rem">Erro: ${e.message}</div>`;
+  }
+}
+
+window.aprovAula = async function(discId, bimId, aulaId) {
+  if(!confirm('Aprovar e publicar esta sugestão?'))return;
+  const snap = await getDoc(doc(db,'disciplinas',discId,'bimestres',bimId,'aulas',aulaId));
+  const d = snap.data();
+  const upd = {status:'publicado', ultimaPublicacao:serverTimestamp()};
+  if(d.sug_conteudo!==undefined&&d.sug_conteudo!==null){upd.conteudo=d.sug_conteudo;upd.conteudoPublicado=d.sug_conteudo;upd.sug_conteudo=null;}
+  if(d.sug_passos!==undefined&&d.sug_passos!==null){upd.passos=d.sug_passos;upd.passosPublicados=d.sug_passos;upd.sug_passos=null;}
+  if(d.sug_atividades!==undefined&&d.sug_atividades!==null){upd.atividades=d.sug_atividades;upd.atividadesPublicadas=d.sug_atividades;upd.sug_atividades=null;}
+  if(d.sug_materiais!==undefined&&d.sug_materiais!==null){upd.materiais=d.sug_materiais;upd.materiaisPublicados=d.sug_materiais;upd.sug_materiais=null;}
+  if(d.sug_referencias!==undefined&&d.sug_referencias!==null){upd.referencias=d.sug_referencias;upd.referenciasPublicadas=d.sug_referencias;upd.sug_referencias=null;}
+  if(d.sug_avaliacao!==undefined&&d.sug_avaliacao!==null){upd.avaliacao=d.sug_avaliacao;upd.avaliacaoPublicada=d.sug_avaliacao;upd.sug_avaliacao=null;}
+  await updateDoc(doc(db,'disciplinas',discId,'bimestres',bimId,'aulas',aulaId),upd);
+  loadAprov(); loadDashboard();
+};
+
+window.rejAula = async function(discId, bimId, aulaId) {
+  if(!confirm('Rejeitar sugestão? O conteúdo publicado atual será mantido.'))return;
+  await updateDoc(doc(db,'disciplinas',discId,'bimestres',bimId,'aulas',aulaId),{
+    status:'publicado',
+    sug_conteudo:null,sug_passos:null,sug_atividades:null,
+    sug_materiais:null,sug_referencias:null,sug_avaliacao:null
+  });
+  loadAprov(); loadDashboard();
+};
+
+window.aprovPDF = async function(discId, bimId, aulaId, path) {
+  const snap = await getDoc(doc(db,'disciplinas',discId,'bimestres',bimId,'aulas',aulaId));
+  const pdfs = (snap.data()?.pdfs||[]).map(p=>p.path===path?{...p,status:'publicado'}:p);
+  await updateDoc(doc(db,'disciplinas',discId,'bimestres',bimId,'aulas',aulaId),{pdfs});
+  loadAprov(); loadDashboard();
+};
+
+window.rejPDF = async function(discId, bimId, aulaId, path) {
+  if(!confirm('Rejeitar e remover este PDF?'))return;
+  const snap = await getDoc(doc(db,'disciplinas',discId,'bimestres',bimId,'aulas',aulaId));
+  const pdfs = (snap.data()?.pdfs||[]).filter(p=>p.path!==path);
+  await updateDoc(doc(db,'disciplinas',discId,'bimestres',bimId,'aulas',aulaId),{pdfs});
+  loadAprov(); loadDashboard();
+};
+</script>
+</body>
+</html>
