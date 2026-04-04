@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>(function(){if(localStorage.getItem('mira-theme')==='dark')document.documentElement.classList.add('dark');})()</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA — Redefinir Senha</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F8F7F2;--card:#FFFFFF;--card2:#F0EEE8;--border:#DDD9CF;
+  --text:#0F2461;--text2:#1A3A8F;--text3:#6A7F9A;
+  --shadow:0 2px 8px rgba(15,36,97,.08),0 4px 16px rgba(15,36,97,.06);
+  --r:14px;--rs:10px;
+  --pri:#1A3A8F;--pri-bg:#EEF0FB;--pri-t:#0F2461;
+  --green:#2E9E6B;--green-bg:#E8F5EF;--green-t:#1A6B47;
+  --red:#C0392B;--red-bg:#FEECEC;
+  --gold:#E8B800;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--pri);padding:0 24px;display:flex;align-items:center;justify-content:center;height:52px;box-shadow:0 2px 8px rgba(15,36,97,.15)}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:36px;width:100%;max-width:440px;box-shadow:var(--shadow)}
+.card h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;text-align:center;margin-bottom:6px}
+.subtitle{text-align:center;font-size:.85rem;color:var(--text3);margin-bottom:22px;line-height:1.6}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.72rem;font-weight:700;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.field input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);outline:none;transition:border-color .2s;background:var(--card)}
+.field input:focus{border-color:var(--pri)}
+.btn{display:block;width:100%;padding:12px;background:var(--pri);color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px}
+.btn:hover{background:var(--pri-t)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.alert{padding:10px 14px;border-radius:8px;font-size:.84rem;margin-bottom:12px;display:none;line-height:1.6}
+.alert.show{display:block}
+.alert-ok{background:var(--green-bg);color:var(--green-t);border:1px solid var(--green)}
+.alert-err{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.back-link{display:inline-flex;align-items:center;gap:5px;font-size:.82rem;color:var(--pri);text-decoration:none;margin-top:16px;font-weight:600}
+.back-link:hover{text-decoration:underline}
+.strength{height:4px;border-radius:2px;background:var(--border);margin-top:6px;overflow:hidden}
+.strength-bar{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0}
+.strength-label{font-size:.7rem;color:var(--text3);margin-top:4px;text-align:right}
+
+/* RESULTADO SUCESSO */
+.success-view{text-align:center;padding:20px 0}
+.success-icon{width:64px;height:64px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.success-icon svg{width:32px;height:32px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── DARK MODE ── */
+:root.dark{
+  --bg:#111827;--card:#1F2937;--card2:#374151;--border:#374151;
+  --text:#F9FAFB;--text2:#E5E7EB;--text3:#9CA3AF;
+  --shadow:0 2px 8px rgba(0,0,0,.3);
+  --pri:#4F7FE8;--pri-bg:#1E2A45;--pri-t:#93B4F5;
+  --green:#34D399;--green-bg:#022C22;--green-t:#6EE7B7;
+  --red:#F87171;--red-bg:#2A0A0A;
+}
+input, textarea, select {
+  background: var(--card);
+  color: var(--text);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text3);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" style="display:flex;align-items:center;text-decoration:none">
+    <svg width="80" height="22" viewBox="0 0 110 30" fill="none"><path d="M4 9C4 9 4 22 4 22C6 21 13 20 15 22L15 9C13 7 5 8 4 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><path d="M26 9C26 9 26 22 26 22C24 21 17 20 15 22L15 9C17 7 25 8 26 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><line x1="15" y1="9" x2="15" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><path d="M15 3L16 5.8H19L16.5 7.4L17.5 10.2L15 8.6L12.5 10.2L13.5 7.4L11 5.8H14Z" fill="rgba(255,255,255,0.9)"/><text x="33" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="white" letter-spacing="-0.5">MIRA</text></svg>
+  </a>
+</div>
+
+<div class="main">
+  <div class="card">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:20px">
+      <img class="mira-logo-img" src="" alt="Logo MIRA"
+           style="display:none;width:80px;height:80px;object-fit:contain;margin:0 auto 8px;border-radius:50%">
+      <div class="mira-logo-svg">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none"><path d="M6 15C6 15 6 38 6 38C9 37 20 35 26 38L26 15C22 12 7 13 6 15Z" stroke="var(--pri)" stroke-width="2" stroke-linejoin="round" fill="var(--pri-bg)"/><path d="M46 15C46 15 46 38 46 38C43 37 32 35 26 38L26 15C30 12 45 13 46 15Z" stroke="var(--pri)" stroke-width="2" stroke-linejoin="round" fill="var(--pri-bg)"/><line x1="26" y1="15" x2="26" y2="38" stroke="var(--pri)" stroke-width="1.5" opacity=".4"/><path d="M26 5L27.8 10.5H33.5L29 13.5L30.8 19L26 16L21.2 19L23 13.5L18.5 10.5H24.2Z" fill="var(--gold,#E8B800)"/></svg>
+      </div>
+    </div>
+
+    <!-- FORM VIEW -->
+    <div id="form-view">
+      <h1>Redefinir senha</h1>
+      <p class="subtitle">Crie uma nova senha para acessar o portal MIRA</p>
+
+      <div class="alert alert-err" id="err"></div>
+
+      <div class="field">
+        <label>Nova senha</label>
+        <input type="password" id="nova-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <div class="strength"><div class="strength-bar" id="str-bar"></div></div>
+        <div class="strength-label" id="str-label"></div>
+      </div>
+      <div class="field">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="confirmar-senha" placeholder="Repita a senha" autocomplete="new-password">
+      </div>
+
+      <button class="btn" id="btnReset" onclick="window.doReset()">Redefinir senha</button>
+      <a href="login.html" class="back-link">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar ao login
+      </a>
+    </div>
+
+    <!-- SUCCESS VIEW -->
+    <div id="success-view" style="display:none">
+      <div class="success-view">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h1>Senha redefinida!</h1>
+        <p class="subtitle">Sua nova senha foi salva com sucesso. Você já pode fazer login no portal.</p>
+        <a href="login.html" class="btn" style="text-decoration:none;text-align:center;margin-top:16px">Ir para o login</a>
+      </div>
+    </div>
+
+    <!-- INVALID/EXPIRED VIEW -->
+    <div id="invalid-view" style="display:none">
+      <div class="success-view">
+        <div class="success-icon" style="background:var(--red-bg)">
+          <svg viewBox="0 0 24 24" style="stroke:var(--red)"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <h1>Link inválido ou expirado</h1>
+        <p class="subtitle">Este link de recuperação já foi usado ou expirou. Solicite um novo link na tela de login.</p>
+        <a href="login.html" class="btn" style="text-decoration:none;text-align:center;margin-top:16px">Voltar ao login</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, verifyPasswordResetCode, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const cfg={apiKey:"AIzaSyD_IoIlMiPvDRoJJWM2_LMg6cZQqcB7tao",authDomain:"mira-b17cb.firebaseapp.com",projectId:"mira-b17cb",storageBucket:"mira-b17cb.firebasestorage.app",messagingSenderId:"989601201413",appId:"1:989601201413:web:e81c9f2455c908a5594b6c"};
+const app = initializeApp(cfg);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Get oobCode from URL
+const params = new URLSearchParams(window.location.search);
+const oobCode = params.get('oobCode');
+const mode = params.get('mode');
+
+// If no oobCode or wrong mode, show invalid
+if (!oobCode || mode !== 'resetPassword') {
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('invalid-view').style.display = 'block';
+} else {
+  // Verify the code is still valid
+  verifyPasswordResetCode(auth, oobCode).catch(() => {
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('invalid-view').style.display = 'block';
+  });
+}
+
+// Password strength indicator
+document.getElementById('nova-senha')?.addEventListener('input', function() {
+  const val = this.value;
+  const bar = document.getElementById('str-bar');
+  const label = document.getElementById('str-label');
+  let strength = 0;
+  if (val.length >= 6) strength++;
+  if (val.length >= 8) strength++;
+  if (/[A-Z]/.test(val)) strength++;
+  if (/[0-9]/.test(val)) strength++;
+  if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+  const levels = [
+    { w: '0%',   c: 'var(--border)', t: '' },
+    { w: '20%',  c: 'var(--red)',    t: 'Muito fraca' },
+    { w: '40%',  c: '#FB923C',       t: 'Fraca' },
+    { w: '60%',  c: 'var(--gold)',   t: 'Razoável' },
+    { w: '80%',  c: '#34D399',       t: 'Boa' },
+    { w: '100%', c: 'var(--green)',  t: 'Forte' }
+  ];
+  const lvl = val.length === 0 ? levels[0] : levels[Math.min(strength, 5)];
+  bar.style.width = lvl.w;
+  bar.style.background = lvl.c;
+  label.textContent = lvl.t;
+  label.style.color = lvl.c;
+});
+
+// Enter key
+document.addEventListener('keydown', e => { if (e.key === 'Enter') window.doReset(); });
+
+// Reset password
+window.doReset = async function() {
+  const senha = document.getElementById('nova-senha').value;
+  const confirmar = document.getElementById('confirmar-senha').value;
+  const btn = document.getElementById('btnReset');
+  const errEl = document.getElementById('err');
+  errEl.classList.remove('show');
+
+  if (!senha || !confirmar) {
+    errEl.textContent = 'Preencha os dois campos.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (senha.length < 6) {
+    errEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (senha !== confirmar) {
+    errEl.textContent = 'As senhas não coincidem.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    await confirmPasswordReset(auth, oobCode, senha);
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('success-view').style.display = 'block';
+  } catch(e) {
+    const msgs = {
+      'auth/expired-action-code': 'Link expirado. Solicite um novo na tela de login.',
+      'auth/invalid-action-code': 'Link inválido ou já utilizado.',
+      'auth/weak-password':       'Senha muito fraca. Use pelo menos 6 caracteres.',
+      'auth/user-disabled':       'Esta conta foi desativada.',
+      'auth/user-not-found':      'Usuário não encontrado.'
+    };
+    errEl.textContent = msgs[e.code] || 'Erro ao redefinir: ' + e.message;
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Redefinir senha';
+  }
+};
+
+// Load school logo from Firestore
+async function loadLogo() {
+  try {
+    const cfgSnap = await getDoc(doc(db, 'configuracoes', 'escola'));
+    if (cfgSnap.exists() && cfgSnap.data().logoURL) {
+      const url = cfgSnap.data().logoURL;
+      document.querySelectorAll('.mira-logo-img').forEach(el => {
+        el.src = url;
+        el.style.setProperty('display', 'block', 'important');
+      });
+      document.querySelectorAll('.mira-logo-svg').forEach(el => {
+        el.style.setProperty('display', 'none', 'important');
+      });
+    }
+  } catch(e) { console.warn('Logo:', e.message); }
+}
+loadLogo();
+</script>
+</body>
+</html>
