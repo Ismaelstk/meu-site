@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA — Painel Administrador</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F8F7F2;--card:#FFFFFF;--card2:#F0EEE8;--border:#DDD9CF;
+  --text:#0F2461;--text2:#1A3A8F;--text3:#6A7F9A;
+  --shadow:0 2px 8px rgba(15,36,97,.08),0 4px 16px rgba(15,36,97,.06);
+  --r:12px;--rs:8px;
+  --pri:#1A3A8F;--pri-bg:#EEF0FB;--pri-t:#0F2461;
+  --gold:#E8B800;--gold-bg:#FFFBE6;--gold-t:#9A7800;
+  --green:#2E9E6B;--green-bg:#E8F5EF;--green-t:#1A6B47;
+  --red:#C0392B;--red-bg:#FEECEC;
+  --orange:#D97706;--orange-bg:#FEF3C7;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(circle,rgba(26,58,143,.035) 1px,transparent 1px),linear-gradient(rgba(26,58,143,.018) 1px,transparent 1px);
+  background-size:24px 24px,100% 24px;background-position:12px 12px,0 0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.topbar{background:var(--pri);padding:0 22px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(15,36,97,.2)}
+.topbar-brand{display:flex;align-items:center;gap:12px}
+.topbar-badge{font-size:.7rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);border-radius:20px;padding:3px 11px;color:#fff;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.topbar-actions{display:flex;align-items:center;gap:14px}
+.topbar-user{display:flex;align-items:center;gap:8px;font-size:.8rem;color:rgba(255,255,255,.85)}
+.topbar-link{font-size:.8rem;color:rgba(255,255,255,.8);text-decoration:none}.topbar-link:hover{color:#fff}
+.btn-logout{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:8px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}.btn-logout:hover{background:rgba(255,255,255,.24)}
+.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.4);flex-shrink:0}
+.avatar-i{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.7rem;font-weight:800;color:#fff;flex-shrink:0;border:2px solid rgba(255,255,255,.4)}
+.avatar-lg{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--border)}
+.avatar-i-lg{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#fff}
+.avatar-sm{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+.avatar-i-sm{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.6rem;font-weight:800;color:#fff}
+.avatar-upload-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:14px}
+.avatar-upload-btn{font-size:.73rem;color:var(--pri);cursor:pointer;font-weight:600;text-decoration:underline;display:inline-flex;align-items:center;gap:4px}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 54px)}
+.sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px 0}
+.sidebar-label{font-size:.67rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;padding:8px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:10px 18px;cursor:pointer;font-size:.86rem;color:var(--text2);border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{background:var(--pri-bg);color:var(--pri);border-left-color:var(--pri);font-weight:700}
+.nav-badge{background:var(--orange);color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;font-weight:700;margin-left:auto}
+.si{width:14px;height:14px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.main{padding:26px;overflow-y:auto}
+.page{display:none}.page.active{display:block;animation:fadeIn .3s ease}
+.page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.35rem;font-weight:800;margin-bottom:4px}
+.page-sub{font-size:.84rem;color:var(--text3);margin-bottom:22px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+.stat-n{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.9rem;font-weight:900;color:var(--pri);line-height:1}
+.stat-l{font-size:.72rem;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--pri);color:#fff;padding:9px 13px;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;font-size:.73rem;font-weight:700;letter-spacing:.4px}
+td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:nth-child(even) td{background:rgba(248,247,242,.5)}
+.badge{display:inline-block;font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase}
+.badge-admin{background:var(--pri-bg);color:var(--pri)}.badge-colab{background:var(--green-bg);color:var(--green-t)}
+.badge-ativo{background:#DCFCE7;color:#16A34A}.badge-inativo{background:#FEE2E2;color:#DC2626}
+.badge-pendente{background:var(--orange-bg);color:var(--orange)}.badge-publicado{background:var(--green-bg);color:var(--green-t)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.form-grid.c1{grid-template-columns:1fr}
+.field label{display:block;font-size:.72rem;font-weight:700;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.field input,.field select,.field textarea{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--text);background:#fff;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--pri)}
+.field textarea{resize:vertical;min-height:70px}
+.alert{padding:9px 13px;border-radius:8px;font-size:.82rem;margin-bottom:12px;display:none}.alert.show{display:block}
+.alert-ok{background:var(--green-bg);color:var(--green-t);border:1px solid var(--green)}
+.alert-err{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{background:var(--pri-t)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1A6B47}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}.btn-red:hover{background:var(--red);color:#fff}
+.btn-ghost{background:var(--card2);color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--pri);color:var(--pri)}
+.btn-orange{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange)}.btn-orange:hover{background:var(--orange);color:#fff}
+.btn-sm{padding:5px 11px;font-size:.76rem}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(15,36,97,.45);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-ov.open{display:flex}
+.modal{background:var(--card);border-radius:var(--r);padding:26px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(15,36,97,.2);max-height:88vh;overflow-y:auto}
+.modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;margin-bottom:18px}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+.disc-item{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;gap:12px}
+.disc-info{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.disc-icon-wrap{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--pri-bg)}
+.disc-icon-wrap svg{width:20px;height:20px;stroke:var(--pri-t);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.disc-name{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.92rem}
+.disc-meta{font-size:.76rem;color:var(--text3);margin-top:2px}
+.icon-select{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.icon-opt{width:38px;height:38px;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;background:var(--card)}
+.icon-opt:hover{border-color:var(--pri);background:var(--pri-bg)}
+.icon-opt.selected{border-color:var(--pri);background:var(--pri-bg);box-shadow:0 0 0 2px rgba(26,58,143,.2)}
+.icon-opt svg{width:18px;height:18px;stroke:var(--text2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── ESTRUTURA: 2-COLUMN LAYOUT ── */
+.struct-layout{display:grid;grid-template-columns:320px 1fr;gap:16px;min-height:500px}
+.struct-tree{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);display:flex;flex-direction:column;max-height:calc(100vh - 200px);position:sticky;top:80px}
+.struct-tree-hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.struct-tree-hd h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:800}
+.struct-tree-body{overflow-y:auto;flex:1;padding:10px}
+.st-bim{margin-bottom:6px}
+.st-bim-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--pri-bg);border-radius:var(--rs);cursor:pointer;gap:6px}
+.st-bim-hd:hover{background:#DEE3F7}
+.st-bim-nm{font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:700;color:var(--pri);flex:1;min-width:0;display:flex;align-items:center;gap:6px}
+.st-bim-meta{font-size:.65rem;color:var(--text3);font-weight:400}
+.st-bim-acts{display:flex;gap:3px;flex-shrink:0}
+.st-bim-body{padding:4px 0 4px 12px;display:none}.st-bim-body.open{display:block}
+.st-aula{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:.8rem;color:var(--text2);transition:all .12s;border:1.5px solid transparent;margin-bottom:3px}
+.st-aula:hover{background:var(--bg);border-color:var(--border)}
+.st-aula.active{background:var(--pri-bg);border-color:var(--pri);color:var(--pri);font-weight:700}
+.st-aula-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.st-aula-icon svg{width:12px;height:12px}
+.st-aula-icon.normal{background:var(--pri-bg);color:var(--pri)}
+.st-aula-icon.prova{background:var(--gold-bg);color:var(--gold-t)}
+.st-aula-icon.recup{background:var(--green-bg);color:var(--green-t)}
+.st-aula-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-pend-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0}
+.struct-editor{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:0;overflow:hidden}
+.se-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:var(--text3);text-align:center;gap:10px;padding:40px}
+.se-empty svg{width:48px;height:48px;opacity:.4}
+.se-empty h3{font-size:.95rem;color:var(--text2)}
+.se-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--bg)}
+.se-header-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.se-body{padding:20px;overflow-y:auto;max-height:calc(100vh - 250px)}
+.se-section{margin-bottom:16px}
+.se-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.se-section-title svg{width:15px;height:15px;color:var(--pri);stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.se-save-status{font-size:.75rem;padding:4px 10px;border-radius:20px;font-weight:600}
+.se-save-status.ok{background:var(--green-bg);color:var(--green-t)}
+.wysiwyg-wrap{border:1.5px solid var(--border);border-radius:8px;overflow:hidden}.wysiwyg-wrap:focus-within{border-color:var(--pri)}
+.wysiwyg-toolbar{display:flex;flex-wrap:wrap;gap:2px;padding:6px 8px;background:var(--bg);border-bottom:1px solid var(--border)}
+.tb-btn{width:28px;height:28px;border:1px solid transparent;border-radius:5px;background:transparent;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s;font-family:'DM Sans',sans-serif}.tb-btn:hover{background:var(--pri-bg);border-color:var(--border)}
+.tb-sep{width:1px;background:var(--border);margin:3px;flex-shrink:0}
+.wysiwyg-body{min-height:140px;padding:12px 14px;font-size:.88rem;line-height:1.75;color:var(--text);outline:none;background:#fff}
+.wysiwyg-body[contenteditable]:empty::before{content:attr(data-placeholder);color:var(--text3)}
+.wysiwyg-body img{max-width:60%;width:auto;border-radius:6px;margin:6px 0;cursor:pointer}
+.wysiwyg-body img:hover{outline:1px dashed var(--border);outline-offset:2px}
+.se-steps{display:flex;flex-direction:column;gap:6px}
+.se-step-row{display:flex;gap:6px;align-items:flex-start}
+.se-step-num{width:24px;height:24px;border-radius:6px;background:var(--pri);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:5px}
+.se-step-row textarea{flex:1;padding:6px 9px;border:1.5px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.83rem;resize:vertical;min-height:44px;outline:none}.se-step-row textarea:focus{border-color:var(--pri)}
+.se-rm{background:var(--red-bg);color:var(--red);border:1px solid var(--red);border-radius:6px;width:24px;height:24px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:5px}.se-rm:hover{background:var(--red);color:#fff}
+.se-pdf-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:6px;font-size:.8rem}
+.se-upload-zone{border:2px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;font-size:.82rem;color:var(--text3)}.se-upload-zone:hover{border-color:var(--pri);background:var(--pri-bg)}
+.se-prog-wrap{display:none;margin-top:8px}.se-prog-bar{height:4px;background:var(--border);border-radius:10px;overflow:hidden}.se-prog-fill{height:100%;background:var(--pri);border-radius:10px;transition:width .3s}
+
+/* APPROVAL CARDS */
+.aprov-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.aprov-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.aprov-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:6px}
+.aprov-meta{font-size:.76rem;color:var(--text3);margin-top:2px}
+.aprov-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.aprov-content{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:.83rem;max-height:140px;overflow-y:auto;margin-bottom:8px;line-height:1.65}
+.aprov-label{font-size:.7rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.loading{display:flex;align-items:center;gap:10px;justify-content:center;padding:32px;color:var(--text3);font-size:.87rem}
+.spinner{width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite}
+.empty-box{text-align:center;padding:40px;color:var(--text3)}
+@media(max-width:900px){.struct-layout{grid-template-columns:1fr}.struct-tree{max-height:300px;position:static}}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ── ONLINE PRESENCE ── */
+.online-dot{width:9px;height:9px;border-radius:50%;background:#22C55E;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(34,197,94,.3);animation:pulse-green 2s infinite}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.3)}50%{box-shadow:0 0 0 5px rgba(34,197,94,.1)}}
+.offline-dot{width:9px;height:9px;border-radius:50%;background:#D1D5DB;display:inline-block;flex-shrink:0}
+.user-online-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)}
+.user-online-row:last-child{border-bottom:none}
+.user-online-avatar{width:32px;height:32px;border-radius:50%;background:var(--pri-bg);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:800;color:var(--pri);flex-shrink:0;overflow:hidden}
+.user-online-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.user-online-info{flex:1;min-width:0}
+.user-online-nome{font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-online-meta{font-size:.68rem;color:var(--text3);margin-top:1px}
+.user-online-badge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.badge-admin-sm{background:var(--pri-bg);color:var(--pri)}
+.badge-colab-sm{background:var(--green-bg);color:var(--green-t)}
+
+/* ── DASHBOARD ADDITIONS ── */
+.dash-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.access-stat{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.access-stat:last-child{border-bottom:none}
+.access-stat-label{color:var(--text2)}
+.access-stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:var(--pri)}
+
+</style>
+</head>
+<body>
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<symbol id="ic-finance" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-math" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12h8M12 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-language" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 19.5V4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7h8M8 11h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-science" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 8.5a2 2 0 001.7 3h10.6a2 2 0 001.7-3L14 9V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-geography" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-history" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-art" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-sports" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v20M2 12h20" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="ic-default" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-clipboard" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="2" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 14l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polyline points="2 17 12 22 22 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 12 12 17 22 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A7 7 0 1012 19" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="ic-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="17 8 12 3 7 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="17 21 17 13 7 13 7 21" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="7 3 7 8 15 8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 19.5V4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ic-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></symbol>
+<symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></symbol>
+<symbol id="ic-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
+</svg>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <svg width="80" height="22" viewBox="0 0 110 30" fill="none"><circle cx="15" cy="15" r="13" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/><circle cx="15" cy="15" r="9" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/><circle cx="15" cy="15" r="4.5" stroke="rgba(255,255,255,0.65)" stroke-width="1.3"/><circle cx="15" cy="15" r="2" fill="white"/><line x1="15" y1="1" x2="15" y2="6" stroke="white" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="24" x2="15" y2="29" stroke="white" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="15" x2="6" y2="15" stroke="white" stroke-width="1.3" stroke-linecap="round"/><line x1="24" y1="15" x2="29" y2="15" stroke="white" stroke-width="1.3" stroke-linecap="round"/><text x="36" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="white" letter-spacing="-0.5">MIRA</text></svg>
+    <span class="topbar-badge">Admin</span>
+  </div>
+  <div class="topbar-actions">
+    <div class="topbar-user" style="cursor:pointer" onclick="openProfile()"><span id="topbar-avatar"></span><span id="userEmail"></span></div>
+    <a href="index.html" class="topbar-link" target="_blank">Ver portal</a>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-label">Painel</div>
+  <div class="nav-item active" id="nav-dashboard" onclick="goTo('dashboard')"><svg class="si"><use href="#ic-grid"/></svg> Dashboard</div>
+  <div class="sidebar-label" style="margin-top:8px">Usuários</div>
+  <div class="nav-item" id="nav-usuarios" onclick="goTo('usuarios')"><svg class="si"><use href="#ic-users"/></svg> Professores</div>
+  <div class="sidebar-label" style="margin-top:8px">Conteúdo</div>
+  <div class="nav-item" id="nav-disciplinas" onclick="goTo('disciplinas')"><svg class="si"><use href="#ic-book"/></svg> Disciplinas</div>
+  <div class="nav-item" id="nav-estrutura" onclick="goTo('estrutura')"><svg class="si"><use href="#ic-layers"/></svg> Bimestres e Aulas</div>
+  <div class="nav-item" id="nav-aprovacoes" onclick="goTo('aprovacoes')"><svg class="si"><use href="#ic-check"/></svg> Aprovações <span class="nav-badge" id="aprov-badge" style="display:none">0</span></div>
+    <div class="sidebar-label" style="margin-top:8px">Sistema</div>
+    <div class="nav-item" id="nav-config" onclick="goTo('config')"><svg class="si"><use href="#ic-settings"/></svg> Configurações</div>
+</aside>
+<main class="main">
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <!-- Welcome Card -->
+    <div class="card" style="background:linear-gradient(135deg,var(--pri),var(--pri-t));color:#fff;border:none;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800" id="dash-greeting">Bom dia</div>
+          <div style="font-size:.85rem;opacity:.8;margin-top:4px" id="dash-context">Carregando...</div>
+        </div>
+        <div style="font-size:.78rem;opacity:.7" id="dash-date"></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card" style="border-left:3px solid var(--pri)"><div style="display:flex;align-items:center;justify-content:space-between"><div class="stat-n" id="st-users">—</div><div style="width:36px;height:36px;border-radius:8px;background:var(--pri-bg);display:flex;align-items:center;justify-content:center"><svg class="si" style="width:18px;height:18px;color:var(--pri)"><use href="#ic-users"/></svg></div></div><div class="stat-l">Professores</div></div>
+      <div class="stat-card" style="border-left:3px solid var(--green)"><div style="display:flex;align-items:center;justify-content:space-between"><div class="stat-n" id="st-discs" style="color:var(--green)">—</div><div style="width:36px;height:36px;border-radius:8px;background:var(--green-bg);display:flex;align-items:center;justify-content:center"><svg class="si" style="width:18px;height:18px;color:var(--green)"><use href="#ic-book"/></svg></div></div><div class="stat-l">Disciplinas</div></div>
+      <div class="stat-card" style="border-left:3px solid var(--gold)"><div style="display:flex;align-items:center;justify-content:space-between"><div class="stat-n" id="st-aulas" style="color:var(--gold-t)">—</div><div style="width:36px;height:36px;border-radius:8px;background:var(--gold-bg);display:flex;align-items:center;justify-content:center"><svg class="si" style="width:18px;height:18px;color:var(--gold-t)"><use href="#ic-book-open"/></svg></div></div><div class="stat-l">Aulas</div></div>
+      <div class="stat-card" style="border-left:3px solid var(--orange)"><div style="display:flex;align-items:center;justify-content:space-between"><div class="stat-n" id="st-pend" style="color:var(--orange)">—</div><div style="width:36px;height:36px;border-radius:8px;background:var(--orange-bg);display:flex;align-items:center;justify-content:center"><svg class="si" style="width:18px;height:18px;color:var(--orange)"><use href="#ic-clock"/></svg></div></div><div class="stat-l">Pendentes</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+
+      <!-- Quem está online agora -->
+      <div class="card">
+        <div class="card-title">
+          <span style="display:flex;align-items:center;gap:7px">
+            <span class="online-dot" style="width:10px;height:10px"></span>
+            Online agora
+          </span>
+          <span id="online-count" style="font-size:.72rem;color:var(--text3);font-weight:400">—</span>
+        </div>
+        <div id="dash-online"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- Acesso Rápido + Últimos Acessos -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-title">Acesso rápido</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <button class="btn btn-pri" onclick="goTo('usuarios')" style="justify-content:center">+ Cadastrar professor</button>
+            <button class="btn btn-ghost" onclick="goTo('estrutura')" style="justify-content:center">Gerenciar aulas</button>
+            <button class="btn btn-orange" onclick="goTo('aprovacoes')" style="justify-content:center">Aprovações pendentes</button>
+            <a href="index.html" target="_blank" class="btn btn-ghost" style="justify-content:center;text-decoration:none">Abrir portal MIRA ↗</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Últimos acessos</div>
+          <div id="dash-recent"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- USUÁRIOS -->
+  <div class="page" id="page-usuarios">
+    <div class="page-title">Professores</div><div class="page-sub">Cadastre e gerencie os professores com acesso ao MIRA</div>
+    <div class="card"><div class="card-title">Cadastrar novo professor</div>
+      <div class="alert alert-ok" id="u-ok"></div><div class="alert alert-err" id="u-err"></div>
+      <div class="form-grid"><div class="field"><label>Nome completo</label><input type="text" id="u-nome" placeholder="Maria Silva"></div><div class="field"><label>Email</label><input type="email" id="u-email" placeholder="professor@escola.com"></div><div class="field"><label>Senha inicial</label><input type="password" id="u-senha" placeholder="Mínimo 6 caracteres"></div><div class="field"><label>Perfil</label><select id="u-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select></div></div>
+      <button class="btn btn-green" onclick="cadastrarUser()"><svg class="si" style="width:12px;height:12px"><use href="#ic-plus"/></svg> Cadastrar</button>
+    </div>
+    <div class="card"><div class="card-title">Professores cadastrados</div>
+      <div class="tbl-wrap"><table><thead><tr><th></th><th>Nome</th><th>Email</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="users-tbody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table></div>
+    </div>
+  </div>
+  <!-- DISCIPLINAS -->
+  <div class="page" id="page-disciplinas">
+    <div class="page-title">Disciplinas</div><div class="page-sub">Gerencie as disciplinas do portal MIRA</div>
+    <div class="card"><div class="card-title">Adicionar disciplina</div>
+      <div class="alert alert-ok" id="d-ok"></div><div class="alert alert-err" id="d-err"></div>
+      <div class="form-grid"><div class="field"><label>Nome</label><input type="text" id="d-nome" placeholder="Ex: Matemática"></div><div class="field"><label>Séries</label><input type="text" id="d-series" placeholder="Ex: 6º ao 9º Ano"></div><div class="field"><label>Descrição</label><input type="text" id="d-desc" placeholder="Resumo da disciplina"></div></div>
+      <div class="field"><label>Ícone da disciplina</label>
+        <div class="icon-select" id="icon-select">
+          <div class="icon-opt selected" data-icon="finance" title="Finanças"><svg><use href="#ic-finance"/></svg></div>
+          <div class="icon-opt" data-icon="math" title="Matemática"><svg><use href="#ic-math"/></svg></div>
+          <div class="icon-opt" data-icon="language" title="Linguagem"><svg><use href="#ic-language"/></svg></div>
+          <div class="icon-opt" data-icon="science" title="Ciências"><svg><use href="#ic-science"/></svg></div>
+          <div class="icon-opt" data-icon="geography" title="Geografia"><svg><use href="#ic-geography"/></svg></div>
+          <div class="icon-opt" data-icon="history" title="História"><svg><use href="#ic-history"/></svg></div>
+          <div class="icon-opt" data-icon="art" title="Arte"><svg><use href="#ic-art"/></svg></div>
+          <div class="icon-opt" data-icon="sports" title="Ed. Física"><svg><use href="#ic-sports"/></svg></div>
+        </div>
+      </div>
+      <button class="btn btn-green" style="margin-top:14px" onclick="addDisc()"><svg class="si" style="width:12px;height:12px"><use href="#ic-plus"/></svg> Adicionar</button>
+    </div>
+    <div class="card"><div class="card-title">Disciplinas ativas</div><div id="disc-list"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>
+  <!-- ESTRUTURA (2 COLUNAS) -->
+  <div class="page" id="page-estrutura">
+    <div class="page-title">Bimestres e Aulas</div><div class="page-sub">Selecione uma disciplina, navegue pela árvore e edite qualquer aula</div>
+    <div class="card" style="margin-bottom:16px"><div class="field"><label>Disciplina</label><select id="struct-disc" onchange="loadStruct()"><option value="">Escolha uma disciplina...</option></select></div></div>
+    <div class="struct-layout" id="struct-layout" style="display:none">
+      <div class="struct-tree">
+        <div class="struct-tree-hd"><h3>Estrutura</h3><div style="display:flex;gap:4px"><button class="btn btn-sm btn-green" onclick="openModalBim()"><svg class="si" style="width:11px;height:11px"><use href="#ic-plus"/></svg> Bimestre</button></div></div>
+        <div class="struct-tree-body" id="struct-tree-body"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="struct-editor" id="struct-editor">
+        <div class="se-empty"><svg><use href="#ic-edit"/></svg><h3>Selecione uma aula</h3><p style="font-size:.84rem">Clique em qualquer aula na árvore ao lado para editar seu conteúdo completo.</p></div>
+      </div>
+    </div>
+  </div>
+  <!-- APROVAÇÕES -->
+  <div class="page" id="page-aprovacoes">
+    <div class="page-title">Aprovações</div><div class="page-sub">Sugestões de colaboradores aguardando revisão</div>
+    <div id="aprov-list"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- CONFIG PAGE -->
+  <div class="page" id="page-config">
+    <div class="page-title">Configurações</div>
+    <div class="page-sub">Personalize o portal MIRA da sua escola</div>
+
+    <!-- Logo da escola -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">
+        <span style="display:flex;align-items:center;gap:8px">
+          <svg class="si" style="width:16px;height:16px;color:var(--pri)"><use href="#ic-image"/></svg>
+          Logo da Escola
+        </span>
+      </div>
+      <p style="font-size:.84rem;color:var(--text3);margin-bottom:16px">
+        A logo aparece no portal, no manual e na tela de login. Formatos aceitos: PNG, JPG, SVG. Tamanho recomendado: 200×200px.
+      </p>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div id="config-logo-preview" style="width:90px;height:90px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+          <svg class="si" style="width:28px;height:28px;color:var(--text3)"><use href="#ic-image"/></svg>
+        </div>
+        <div>
+          <div style="font-size:.84rem;font-weight:600;color:var(--text);margin-bottom:6px">Logo atual</div>
+          <div id="config-logo-url-label" style="font-size:.74rem;color:var(--text3);margin-bottom:12px">Nenhuma logo cadastrada</div>
+          <label style="display:inline-flex;align-items:center;gap:7px;background:var(--pri);color:#fff;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">
+            <svg class="si" style="width:14px;height:14px"><use href="#ic-upload"/></svg>
+            Enviar nova logo
+            <input type="file" id="config-logo-input" accept="image/*" style="display:none" onchange="uploadLogo(this.files[0])">
+          </label>
+        </div>
+      </div>
+      <div id="config-logo-progress" style="display:none;margin-top:14px">
+        <div style="background:var(--bg);border-radius:20px;height:6px;overflow:hidden">
+          <div id="config-logo-bar" style="height:100%;background:var(--pri);width:0%;transition:width .2s;border-radius:20px"></div>
+        </div>
+        <div id="config-logo-status" style="font-size:.74rem;color:var(--text3);margin-top:4px">Enviando...</div>
+      </div>
+    </div>
+
+    <!-- Informações da escola -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">
+        <svg class="si" style="width:16px;height:16px;color:var(--pri)"><use href="#ic-layers"/></svg>
+        Informações da Escola
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Nome da escola</label><input type="text" id="cfg-nome-escola" placeholder="Ex: EMEB Maria Iraci Teofilo de Castro"></div>
+        <div class="field"><label>Município / Estado</label><input type="text" id="cfg-municipio" placeholder="Ex: Taquarana · Alagoas"></div>
+        <div class="field"><label>Email institucional</label><input type="email" id="cfg-email" placeholder="Ex: escola@municipio.al.gov.br"></div>
+        <div class="field"><label>WhatsApp (com DDI)</label><input type="text" id="cfg-whatsapp" placeholder="Ex: 5582996888782"></div>
+      </div>
+      <div style="margin-top:4px">
+        <div class="field"><label>Endereço</label><input type="text" id="cfg-endereco" placeholder="Ex: Rua 24 de Agosto, 82, Centro"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn btn-ghost btn-sm" onclick="loadConfig()">Cancelar</button>
+        <button class="btn btn-pri" onclick="saveConfig()">Salvar configurações</button>
+      </div>
+      <div id="cfg-status" style="display:none;margin-top:8px;font-size:.8rem;padding:6px 10px;border-radius:6px"></div>
+    </div>
+
+    <!-- Notificações -->
+    <div class="card">
+      <div class="card-title">
+        <svg class="si" style="width:16px;height:16px;color:var(--pri)"><use href="#ic-bell"/></svg>
+        Notificações de Aprovação
+      </div>
+      <p style="font-size:.84rem;color:var(--text3);margin-bottom:12px">
+        Quando ativado, colaboradores recebem uma notificação dentro do sistema quando suas sugestões são aprovadas ou rejeitadas.
+      </p>
+      <div style="display:flex;align-items:center;gap:12px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.84rem;color:var(--text)">
+          <input type="checkbox" id="cfg-notif" style="width:16px;height:16px;accent-color:var(--pri)">
+          Ativar notificações de aprovação
+        </label>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-pri btn-sm" onclick="saveNotifConfig()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+<!-- MODALS -->
+<div class="modal-ov" id="modal-user"><div class="modal"><div class="modal-title">Editar professor</div>
+  <div class="avatar-upload-wrap" id="eu-avatar-wrap"></div>
+  <div class="form-grid c1"><div class="field"><label>Nome</label><input type="text" id="eu-nome"></div><div class="field"><label>Perfil</label><select id="eu-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select></div><div class="field"><label>Status</label><select id="eu-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div></div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-user')">Cancelar</button><button class="btn btn-pri" onclick="saveUser()">Salvar</button></div>
+</div></div>
+<div class="modal-ov" id="modal-bim"><div class="modal"><div class="modal-title">Adicionar bimestre</div>
+  <div class="alert alert-err" id="bim-err"></div>
+  <div class="form-grid">
+    <div class="field"><label>Série</label><select id="nb-serie" onchange="updateBimOptions()"><option value="6">6º Ano</option><option value="7">7º Ano</option><option value="8">8º Ano</option><option value="9">9º Ano</option></select></div>
+    <div class="field"><label>Bimestre</label><select id="nb-bim"><option value="1">1º Bimestre</option><option value="2">2º Bimestre</option><option value="3">3º Bimestre</option><option value="4">4º Bimestre</option></select></div>
+  </div>
+  <div class="form-grid c1"><div class="field"><label>Tema / Unidade temática</label><input type="text" id="nb-tema" placeholder="Ex: Planejamento Financeiro"></div></div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-bim')">Cancelar</button><button class="btn btn-green" onclick="saveBim()">Adicionar</button></div>
+</div></div>
+<div class="modal-ov" id="modal-aula"><div class="modal"><div class="modal-title">Adicionar aula</div>
+  <div class="form-grid c1"><div class="field"><label>Título</label><input type="text" id="na-titulo" placeholder="Ex: Introdução à Educação Financeira"></div><div class="field"><label>Tipo</label><select id="na-tipo"><option value="normal">Aula normal</option><option value="prova">Prova bimestral</option><option value="recup">Recuperação</option></select></div></div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-aula')">Cancelar</button><button class="btn btn-green" onclick="saveAula()">Adicionar</button></div>
+</div></div>
+<input type="file" id="avatarInput" accept="image/*" style="display:none">
+<input type="file" id="profAvatarInput" accept="image/*" style="display:none">
+<input type="file" id="seImgInput" accept="image/*" style="display:none">
+<input type="file" id="sePdfInput" accept=".pdf" style="display:none">
+<div class="modal-ov" id="modal-profile"><div class="modal" style="max-width:400px">
+  <div class="modal-title" style="display:flex;align-items:center;gap:8px"><svg class="si" style="width:18px;height:18px"><use href="#ic-users"/></svg> Meu perfil</div>
+  <div class="avatar-upload-wrap" id="prof-avatar-wrap"></div>
+  <div class="form-grid c1"><div class="field"><label>Nome</label><input type="text" id="prof-nome"></div><div class="field"><label>Bio</label><input type="text" id="prof-bio" placeholder="Ex: Professor e Coordenador Pedagógico"></div><div class="field"><label>Email</label><input type="text" id="prof-email" disabled style="opacity:.6"></div></div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-profile')">Cancelar</button><button class="btn btn-pri" onclick="saveProfile()">Salvar</button></div>
+</div></div>
+<!-- CROP MODAL -->
+<div class="modal-ov" id="modal-crop">
+  <div class="modal" style="max-width:420px;padding:20px">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:800;margin-bottom:14px">Ajustar foto de perfil</div>
+    <div style="position:relative;width:260px;height:260px;margin:0 auto;overflow:hidden;border-radius:50%;border:3px solid var(--pri);background:var(--card2)">
+      <canvas id="crop-canvas" width="260" height="260" style="display:block"></canvas>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin:14px 0;padding:0 10px">
+      <svg style="width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      <input type="range" id="crop-zoom" min="100" max="300" value="100" style="flex:1;accent-color:var(--pri)">
+      <svg style="width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    </div>
+    <p style="font-size:.73rem;color:var(--text3);text-align:center;margin-bottom:12px">Arraste para ajustar a posição</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeCrop()">Cancelar</button>
+      <button class="btn btn-pri" onclick="confirmCrop()">Aplicar</button>
+    </div>
+  </div>
+</div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,getDocs,addDoc,query,orderBy,where,onSnapshot,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getStorage,ref as sRef,uploadBytesResumable,getDownloadURL,deleteObject}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const cfg={apiKey:"AIzaSyD_IoIlMiPvDRoJJWM2_LMg6cZQqcB7tao",authDomain:"mira-b17cb.firebaseapp.com",projectId:"mira-b17cb",storageBucket:"mira-b17cb.firebasestorage.app",messagingSenderId:"989601201413",appId:"1:989601201413:web:e81c9f2455c908a5594b6c"};
+const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
+let ME=null,editingUserId=null,currentDiscId=null,currentBimId=null,selectedIcon='finance';
+let activeAulaId=null,existingBims=[];
+const emojiToIcon={}; // emoji keys removed - use disc.icone string directly
+function getIconId(d){return'ic-'+(d.icone||'default');}
+function getIconBg(d){const m={finance:'var(--pri-bg)',math:'var(--gold-bg)',language:'var(--green-bg)',science:'#EDE9FE',geography:'#E0F2FE',history:'#FEF3C7',art:'#FCE7F3',sports:'#DCFCE7'};return m[d.icone||emojiToIcon[d.emoji]||'']||'var(--pri-bg)';}
+const avC=['#1A3A8F','#2E9E6B','#E8B800','#2E5FD4','#C0392B','#8B5CF6','#EC4899','#0891B2'];
+function gAC(n){let h=0;for(let i=0;i<(n||'').length;i++)h=n.charCodeAt(i)+((h<<5)-h);return avC[Math.abs(h)%avC.length];}
+function gIn(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function rav(u,s){const c=s==='sm'?'-sm':s==='lg'?'-lg':'';if(u.fotoURL)return`<img class="avatar${c}" src="${u.fotoURL}" alt="">`;return`<div class="avatar-i${c}" style="background:${gAC(u.nome)}">${gIn(u.nome)}</div>`;}
+
+// ── CROP MODULE ──
+let cropImg=null,cropX=0,cropY=0,cropZoom=1,cropDragging=false,cropStartX=0,cropStartY=0,cropCallback=null;
+function openCropModal(file,cb){
+  cropCallback=cb;cropX=0;cropY=0;cropZoom=1;document.getElementById('crop-zoom').value=100;
+  const reader=new FileReader();reader.onload=function(e){cropImg=new Image();cropImg.onload=function(){drawCrop();};cropImg.src=e.target.result;};reader.readAsDataURL(file);
+  document.getElementById('modal-crop').classList.add('open');
+  const cv=document.getElementById('crop-canvas');
+  cv.onmousedown=function(e){cropDragging=true;cropStartX=e.clientX-cropX;cropStartY=e.clientY-cropY;};
+  cv.ontouchstart=function(e){cropDragging=true;const t=e.touches[0];cropStartX=t.clientX-cropX;cropStartY=t.clientY-cropY;e.preventDefault();};
+  window.onmousemove=function(e){if(!cropDragging)return;cropX=e.clientX-cropStartX;cropY=e.clientY-cropStartY;drawCrop();};
+  window.ontouchmove=function(e){if(!cropDragging)return;const t=e.touches[0];cropX=t.clientX-cropStartX;cropY=t.clientY-cropStartY;drawCrop();};
+  window.onmouseup=function(){cropDragging=false;};window.ontouchend=function(){cropDragging=false;};
+  document.getElementById('crop-zoom').oninput=function(){cropZoom=this.value/100;drawCrop();};
+}
+function drawCrop(){const cv=document.getElementById('crop-canvas');const ctx=cv.getContext('2d');const sz=260;ctx.clearRect(0,0,sz,sz);if(!cropImg)return;const scale=Math.max(sz/cropImg.width,sz/cropImg.height)*cropZoom;const w=cropImg.width*scale,h=cropImg.height*scale;const x=(sz-w)/2+cropX,y=(sz-h)/2+cropY;ctx.save();ctx.beginPath();ctx.arc(sz/2,sz/2,sz/2,0,Math.PI*2);ctx.clip();ctx.drawImage(cropImg,x,y,w,h);ctx.restore();}
+window.closeCrop=function(){document.getElementById('modal-crop').classList.remove('open');cropImg=null;cropCallback=null;};
+window.confirmCrop=function(){if(!cropImg||!cropCallback)return;document.getElementById('crop-canvas').toBlob(function(blob){if(blob)cropCallback(blob);closeCrop();},'image/jpeg',0.85);};
+
+// ── AUTH ──
+onAuthStateChanged(auth,async u=>{if(!u){location.href='login.html';return;}const s=await getDoc(doc(db,'usuarios',u.uid));if(!s.exists()||s.data().role!=='admin'){location.href='login.html';return;}ME={uid:u.uid,...s.data()};document.getElementById('userEmail').textContent=ME.nome||u.email;document.getElementById('topbar-avatar').innerHTML=rav(ME);loadDashboard();loadUsers();loadDiscs();loadAprovCount();loadLogo();startPresence(u.uid);watchOnline();loadRecentAccess();});
+window.doLogout=async()=>{await signOut(auth);location.href='login.html';};
+
+// ── PROFILE ──
+window.openProfile=function(){
+  document.getElementById('prof-nome').value=ME.nome||'';
+  document.getElementById('prof-bio').value=ME.bio||'';
+  document.getElementById('prof-email').value=ME.email||'';
+  const w=document.getElementById('prof-avatar-wrap');
+  w.innerHTML=`${rav(ME,'lg')}<label class="avatar-upload-btn" onclick="document.getElementById('profAvatarInput').click()"><svg class="si" style="width:12px;height:12px"><use href="#ic-camera"/></svg> Alterar foto</label>`;
+  setupAvatarUpload('profAvatarInput',ME.uid,function(url){
+    ME.fotoURL=url;document.getElementById('topbar-avatar').innerHTML=rav(ME);
+    w.innerHTML=`<img class="avatar-lg" src="${url}"><label class="avatar-upload-btn" onclick="document.getElementById('profAvatarInput').click()"><svg class="si" style="width:12px;height:12px"><use href="#ic-camera"/></svg> Alterar foto</label>`;
+    loadUsers();
+  });
+  document.getElementById('modal-profile').classList.add('open');
+};
+window.saveProfile=async function(){
+  const nome=document.getElementById('prof-nome').value.trim();const bio=document.getElementById('prof-bio').value.trim();
+  if(!nome){alert('Informe o nome.');return;}
+  await updateDoc(doc(db,'usuarios',ME.uid),{nome,bio});ME.nome=nome;ME.bio=bio;
+  document.getElementById('userEmail').textContent=nome;document.getElementById('topbar-avatar').innerHTML=rav(ME);
+  closeModal('modal-profile');
+};
+
+// ── NAV ──
+window.goTo=function(p){if(p==='config')setTimeout(loadConfig,100);document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');document.getElementById('nav-'+p).classList.add('active');if(p==='aprovacoes')loadAprov();};
+window.closeModal=function(id){document.getElementById(id).classList.remove('open');};
+document.querySelectorAll('.modal-ov').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+document.getElementById('icon-select').addEventListener('click',e=>{const o=e.target.closest('.icon-opt');if(!o)return;document.querySelectorAll('#icon-select .icon-opt').forEach(x=>x.classList.remove('selected'));o.classList.add('selected');selectedIcon=o.dataset.icon;});
+
+// ── DASHBOARD ──
+async function loadDashboard(){
+  try{
+    // Greeting
+    const h=new Date().getHours();
+    const greet=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+    document.getElementById('dash-greeting').textContent=`${greet}, ${(ME.nome||'').split(' ')[0]}`;
+    const now=new Date();
+    const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    const meses=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    document.getElementById('dash-date').textContent=`${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
+
+    // Stats
+    const[uS,dS]=await Promise.all([getDocs(collection(db,'usuarios')),getDocs(collection(db,'disciplinas'))]);
+    document.getElementById('st-users').textContent=uS.size;
+    document.getElementById('st-discs').textContent=dS.size;
+    let totalAulas=0,pend=0;
+    const recentList=[];
+    for(const d of dS.docs){
+      const bS=await getDocs(collection(db,'disciplinas',d.id,'bimestres'));
+      for(const b of bS.docs){
+        const aS=await getDocs(collection(db,'disciplinas',d.id,'bimestres',b.id,'aulas'));
+        totalAulas+=aS.size;
+        aS.forEach(a=>{const dt=a.data();if(dt.status==='pendente')pend++;if(dt.ultimaEdicao)recentList.push({titulo:dt.titulo,bim:b.data().nome,disc:d.data().nome,ts:dt.ultimaEdicao});});
+      }
+    }
+    document.getElementById('st-aulas').textContent=totalAulas;
+    document.getElementById('st-pend').textContent=pend;
+    document.getElementById('dash-context').textContent=pend>0?`Você tem ${pend} sugestão${pend>1?'ões':''} aguardando aprovação.`:`Tudo em dia! ${totalAulas} aulas publicadas.`;
+
+    // Recent activity
+    recentList.sort((a,b)=>(b.ts?.seconds||0)-(a.ts?.seconds||0));
+    const recent=recentList.slice(0,4);
+    const rc=document.getElementById('dash-recent');
+    if(!recent.length){rc.innerHTML='<p style="font-size:.83rem;color:var(--text3);text-align:center;padding:16px">Nenhuma edição recente.</p>';}
+    else{rc.innerHTML=recent.map(r=>{
+      const d=r.ts?.toDate?r.ts.toDate():new Date(r.ts.seconds*1000);
+      const ago=Math.floor((Date.now()-d.getTime())/3600000);
+      const when=ago<1?'agora':ago<24?`há ${ago}h`:`${d.getDate()}/${d.getMonth()+1}`;
+      return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="width:32px;height:32px;border-radius:7px;background:var(--pri-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg class="si" style="width:14px;height:14px;color:var(--pri)"><use href="#ic-edit"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.titulo}</div><div style="font-size:.7rem;color:var(--text3)">${r.disc} · ${r.bim}</div></div><div style="font-size:.7rem;color:var(--text3);flex-shrink:0">${when}</div></div>`;
+    }).join('');}
+  }catch(e){console.error(e);}
+}
+async function loadAprovCount(){try{const dS=await getDocs(collection(db,'disciplinas'));let c=0;for(const d of dS.docs){const bS=await getDocs(collection(db,'disciplinas',d.id,'bimestres'));for(const b of bS.docs){const aS=await getDocs(collection(db,'disciplinas',d.id,'bimestres',b.id,'aulas'));aS.forEach(a=>{const x=a.data();if(x.status==='pendente')c++;if((x.pdfs||[]).some(p=>p.status==='pendente'))c++;});}}const bg=document.getElementById('aprov-badge');if(c>0){bg.textContent=c;bg.style.display='inline';}else bg.style.display='none';}catch(e){}}
+
+// ── USERS ──
+async function loadUsers(){const tb=document.getElementById('users-tbody');const snap=await getDocs(collection(db,'usuarios'));if(snap.empty){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">Nenhum professor.</td></tr>';return;}tb.innerHTML=snap.docs.map(d=>{const u=d.data();return`<tr><td>${rav(u,'sm')}</td><td><strong>${u.nome||'—'}</strong></td><td style="font-size:.82rem">${u.email||'—'}</td><td><span class="badge badge-${u.role==='admin'?'admin':'colab'}">${u.role==='admin'?'Admin':'Colaborador'}</span></td><td><span class="badge badge-${u.status==='inativo'?'inativo':'ativo'}">${u.status==='inativo'?'Inativo':'Ativo'}</span></td><td style="display:flex;gap:6px"><button class="btn btn-sm btn-ghost" onclick="editUser('${d.id}')">Editar</button><button class="btn btn-sm btn-red" onclick="delUser('${d.id}')">Remover</button></td></tr>`;}).join('');}
+window.cadastrarUser=async function(){const nome=document.getElementById('u-nome').value.trim(),email=document.getElementById('u-email').value.trim(),senha=document.getElementById('u-senha').value,role=document.getElementById('u-role').value;const ok=document.getElementById('u-ok'),err=document.getElementById('u-err');ok.classList.remove('show');err.classList.remove('show');if(!nome||!email||!senha){err.textContent='Preencha todos os campos.';err.classList.add('show');return;}if(senha.length<6){err.textContent='Senha mínimo 6 caracteres.';err.classList.add('show');return;}try{const app2=initializeApp(cfg,'secondary-'+Date.now());const auth2=getAuth(app2);const{createUserWithEmailAndPassword}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");const cred=await createUserWithEmailAndPassword(auth2,email,senha);await setDoc(doc(db,'usuarios',cred.user.uid),{nome,email,role,status:'ativo',criadoEm:serverTimestamp()});await auth2.signOut();ok.textContent=`Professor "${nome}" cadastrado!`;ok.classList.add('show');['u-nome','u-email','u-senha'].forEach(id=>document.getElementById(id).value='');loadUsers();loadDashboard();}catch(e){err.textContent=e.code==='auth/email-already-in-use'?'Email já em uso.':'Erro: '+e.message;err.classList.add('show');}};
+window.editUser=async function(uid){editingUserId=uid;const s=await getDoc(doc(db,'usuarios',uid));if(!s.exists())return;const u=s.data();document.getElementById('eu-nome').value=u.nome||'';document.getElementById('eu-role').value=u.role;document.getElementById('eu-status').value=u.status||'ativo';const w=document.getElementById('eu-avatar-wrap');w.innerHTML=`${rav(u,'lg')}<label class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()"><svg class="si" style="width:12px;height:12px"><use href="#ic-camera"/></svg> Alterar foto</label>`;setupAvatarUpload('avatarInput',editingUserId,function(url){w.innerHTML=`<img class="avatar-lg" src="${url}"><label class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()"><svg class="si" style="width:12px;height:12px"><use href="#ic-camera"/></svg> Alterar foto</label>`;loadUsers();if(editingUserId===ME.uid){ME.fotoURL=url;document.getElementById('topbar-avatar').innerHTML=rav(ME);}});document.getElementById('modal-user').classList.add('open');};
+window.saveUser=async function(){if(!editingUserId)return;await updateDoc(doc(db,'usuarios',editingUserId),{nome:document.getElementById('eu-nome').value,role:document.getElementById('eu-role').value,status:document.getElementById('eu-status').value});closeModal('modal-user');loadUsers();};
+window.delUser=async function(uid){if(!confirm('Remover este professor?'))return;await deleteDoc(doc(db,'usuarios',uid));loadUsers();loadDashboard();};
+
+// ── DISCIPLINES ──
+async function loadDiscs(){const snap=await getDocs(collection(db,'disciplinas'));const list=document.getElementById('disc-list');const sel=document.getElementById('struct-disc');sel.innerHTML='<option value="">Escolha uma disciplina...</option>';snap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nome;sel.appendChild(o);});if(snap.empty){list.innerHTML='<p style="font-size:.85rem;color:var(--text3)">Nenhuma disciplina.</p>';return;}list.innerHTML=snap.docs.map(d=>{const disc=d.data();return`<div class="disc-item"><div class="disc-info"><div class="disc-icon-wrap" style="background:${getIconBg(disc)}"><svg><use href="#${getIconId(disc)}"/></svg></div><div><div class="disc-name">${disc.nome}</div><div class="disc-meta">${disc.series||''} · ${disc.descricao||''}</div></div></div><div style="display:flex;gap:6px"><button class="btn btn-sm btn-ghost" onclick="editDisc('${d.id}','${(disc.nome||'').replace(/'/g,'')}')">Editar</button><button class="btn btn-sm btn-red" onclick="delDisc('${d.id}')">Remover</button></div></div>`;}).join('');}
+window.addDisc=async function(){const nome=document.getElementById('d-nome').value.trim();const ok=document.getElementById('d-ok'),err=document.getElementById('d-err');ok.classList.remove('show');err.classList.remove('show');if(!nome){err.textContent='Informe o nome.';err.classList.add('show');return;}await addDoc(collection(db,'disciplinas'),{nome,series:document.getElementById('d-series').value.trim(),descricao:document.getElementById('d-desc').value.trim(),icone:selectedIcon,ativa:true,ordem:Date.now(),criadoEm:serverTimestamp()});ok.textContent=`"${nome}" adicionada!`;ok.classList.add('show');['d-nome','d-series','d-desc'].forEach(id=>document.getElementById(id).value='');loadDiscs();loadDashboard();};
+window.editDisc=function(id,nome){const n=prompt('Nome da disciplina:',nome);if(n===null)return;updateDoc(doc(db,'disciplinas',id),{nome:n});setTimeout(loadDiscs,500);};
+window.delDisc=async function(id){if(!confirm('Remover?'))return;await deleteDoc(doc(db,'disciplinas',id));loadDiscs();loadDashboard();};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── STRUCTURE (2 COLUMNS) ──
+// ═══════════════════════════════════════════════════════════════════════════════
+window.loadStruct=async function(){
+  currentDiscId=document.getElementById('struct-disc').value;
+  const layout=document.getElementById('struct-layout');
+  const editor=document.getElementById('struct-editor');
+  if(!currentDiscId){layout.style.display='none';return;}
+  layout.style.display='grid';
+  editor.innerHTML='<div class="se-empty"><svg><use href="#ic-edit"/></svg><h3>Selecione uma aula</h3><p style="font-size:.84rem">Clique em qualquer aula na árvore ao lado.</p></div>';
+  activeAulaId=null;
+  await renderTree();
+};
+
+async function renderTree(){
+  const body=document.getElementById('struct-tree-body');
+  body.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  const bimsSnap=await getDocs(query(collection(db,'disciplinas',currentDiscId,'bimestres'),orderBy('ordem')));
+  existingBims=bimsSnap.docs.map(d=>({id:d.id,...d.data()}));
+  if(bimsSnap.empty){body.innerHTML='<p style="text-align:center;color:var(--text3);padding:20px;font-size:.84rem">Nenhum bimestre. Clique em "+ Bimestre".</p>';return;}
+  let html='';
+  for(const bim of bimsSnap.docs){
+    const b=bim.data();
+    const aulasSnap=await getDocs(query(collection(db,'disciplinas',currentDiscId,'bimestres',bim.id,'aulas'),orderBy('ordem')));
+    const aulaCount=aulasSnap.size;
+    html+=`<div class="st-bim"><div class="st-bim-hd" onclick="toggleBim('sb-${bim.id}')"><div class="st-bim-nm"><svg class="si" style="width:13px;height:13px"><use href="#ic-calendar"/></svg>${b.nome} <span class="st-bim-meta">${b.serieLabel||''} · ${aulaCount} aula${aulaCount!==1?'s':''}</span></div><div class="st-bim-acts"><button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openModalAula('${bim.id}')" style="padding:3px 8px;font-size:.68rem"><svg class="si" style="width:10px;height:10px"><use href="#ic-plus"/></svg> Aula</button><button class="btn btn-sm btn-red" onclick="event.stopPropagation();delBim('${bim.id}')" style="padding:3px 6px"><svg class="si" style="width:10px;height:10px"><use href="#ic-trash"/></svg></button></div></div><div class="st-bim-body" id="sb-${bim.id}">`;
+    if(aulasSnap.empty) html+='<p style="font-size:.78rem;color:var(--text3);padding:6px">Nenhuma aula.</p>';
+    else aulasSnap.docs.sort((a,b)=>(a.data().ordem||0)-(b.data().ordem||0)).forEach(aula=>{
+      const a=aula.data();const tc=a.tipo==='prova'?'prova':a.tipo==='recup'?'recup':'normal';
+      const ti=a.tipo==='prova'?'ic-clipboard':a.tipo==='recup'?'ic-refresh':'ic-book-open';
+      const isActive=activeAulaId===aula.id?' active':'';
+      html+=`<div class="st-aula${isActive}" id="sta-${aula.id}" onclick="openEditor('${bim.id}','${aula.id}')"><div class="st-aula-icon ${tc}"><svg><use href="#${ti}"/></svg></div><span class="st-aula-title">${a.titulo}</span>${a.status==='pendente'?'<span class="st-pend-dot"></span>':''}<button class="btn btn-sm btn-red" onclick="event.stopPropagation();delAula('${bim.id}','${aula.id}')" style="padding:2px 5px;opacity:.6"><svg class="si" style="width:9px;height:9px"><use href="#ic-trash"/></svg></button></div>`;
+    });
+    html+='</div></div>';
+  }
+  body.innerHTML=html;
+}
+
+window.toggleBim=function(id){document.getElementById(id)?.classList.toggle('open');};
+
+// ── BIMESTRE MODAL (smart selects) ──
+window.openModalBim=function(){
+  document.getElementById('nb-tema').value='';
+  document.getElementById('bim-err').classList.remove('show');
+  updateBimOptions();
+  document.getElementById('modal-bim').classList.add('open');
+};
+window.updateBimOptions=function(){
+  const serie=parseInt(document.getElementById('nb-serie').value);
+  const sel=document.getElementById('nb-bim');
+  const used=existingBims.filter(b=>b.serie===serie).map(b=>{
+    const m=b.nome.match(/(\d)/);return m?parseInt(m[1]):0;
+  });
+  sel.innerHTML='';
+  let hasAvail=false;
+  for(let i=1;i<=4;i++){
+    const opt=document.createElement('option');opt.value=i;opt.textContent=`${i}º Bimestre`;
+    if(used.includes(i)){opt.disabled=true;opt.textContent+=` (já existe)`;}
+    else{if(!hasAvail){opt.selected=true;hasAvail=true;}}
+    sel.appendChild(opt);
+  }
+  if(!hasAvail){const err=document.getElementById('bim-err');err.textContent=`Todos os bimestres do ${serie}º Ano já foram criados.`;err.classList.add('show');}
+  else document.getElementById('bim-err').classList.remove('show');
+};
+window.saveBim=async function(){
+  if(!currentDiscId)return;
+  const serie=parseInt(document.getElementById('nb-serie').value);
+  const bimNum=parseInt(document.getElementById('nb-bim').value);
+  const nome=`${bimNum}º Bimestre`;
+  const tema=document.getElementById('nb-tema').value.trim();
+  const bimsSnap=await getDocs(collection(db,'disciplinas',currentDiscId,'bimestres'));
+  await addDoc(collection(db,'disciplinas',currentDiscId,'bimestres'),{
+    nome,tema,serie,serieLabel:`${serie}º Ano`,cor:String(serie),
+    ordem:(serie*10)+bimNum,criadoEm:serverTimestamp()
+  });
+  closeModal('modal-bim');await renderTree();loadDashboard();
+};
+
+// ── AULA MODAL ──
+window.openModalAula=function(bimId){currentBimId=bimId;document.getElementById('na-titulo').value='';document.getElementById('na-tipo').value='normal';document.getElementById('modal-aula').classList.add('open');};
+window.saveAula=async function(){const titulo=document.getElementById('na-titulo').value.trim();if(!titulo||!currentDiscId||!currentBimId)return;const aS=await getDocs(collection(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas'));await addDoc(collection(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas'),{titulo,objetivo:'',hab:'',tipo:document.getElementById('na-tipo').value||'normal',ordem:aS.size+1,conteudo:'',conteudoPublicado:'',passos:[],passosPublicados:[],atividades:[],atividadesPublicadas:[],materiais:[],materiaisPublicados:[],avaliacao:'',avaliacaoPublicada:'',referencias:'',referenciasPublicadas:'',pdfs:[],status:'publicado',criadoEm:serverTimestamp()});closeModal('modal-aula');await renderTree();loadDashboard();};
+window.delBim=async function(bimId){if(!confirm('Remover este bimestre e todas as aulas?'))return;const aS=await getDocs(collection(db,'disciplinas',currentDiscId,'bimestres',bimId,'aulas'));for(const a of aS.docs)await deleteDoc(a.ref);await deleteDoc(doc(db,'disciplinas',currentDiscId,'bimestres',bimId));document.getElementById('struct-editor').innerHTML='<div class="se-empty"><svg><use href="#ic-edit"/></svg><h3>Selecione uma aula</h3><p style="font-size:.84rem">Clique em qualquer aula na árvore ao lado.</p></div>';activeAulaId=null;await renderTree();loadDashboard();};
+window.delAula=async function(bimId,aulaId){if(!confirm('Remover esta aula?'))return;await deleteDoc(doc(db,'disciplinas',currentDiscId,'bimestres',bimId,'aulas',aulaId));if(activeAulaId===aulaId){document.getElementById('struct-editor').innerHTML='<div class="se-empty"><svg><use href="#ic-edit"/></svg><h3>Selecione uma aula</h3><p style="font-size:.84rem">Clique em qualquer aula.</p></div>';activeAulaId=null;}await renderTree();loadDashboard();};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── EDITOR (right column) ──
+// ═══════════════════════════════════════════════════════════════════════════════
+window.openEditor=async function(bimId,aulaId){
+  activeAulaId=aulaId;currentBimId=bimId;
+  document.querySelectorAll('.st-aula').forEach(x=>x.classList.remove('active'));
+  document.getElementById('sta-'+aulaId)?.classList.add('active');
+  const ed=document.getElementById('struct-editor');
+  ed.innerHTML='<div class="loading" style="min-height:300px"><div class="spinner"></div> Carregando...</div>';
+  const snap=await getDoc(doc(db,'disciplinas',currentDiscId,'bimestres',bimId,'aulas',aulaId));
+  if(!snap.exists()){ed.innerHTML='<div class="se-empty"><p style="color:var(--red)">Aula não encontrada.</p></div>';return;}
+  const a=snap.data();
+  const passos=a.passos||[];const materiais=(a.materiais||[]).filter(m=>typeof m==='string'&&!m.startsWith('<button')).join('\n');
+  const atText=typeof(a.atividades||'')==='string'?a.atividades:(a.atividades||[]).map(v=>typeof v==='string'?v:(v.titulo||'')).join('\n\n');
+  const pdfs=a.pdfs||[];
+  const stH=passos.map((p,i)=>`<div class="se-step-row" id="ses-${i}"><div class="se-step-num">${i+1}</div><textarea>${p}</textarea><button class="se-rm" onclick="seRmStep(${i})">×</button></div>`).join('');
+  const pdH=pdfs.map(pdf=>`<div class="se-pdf-item"><svg class="si"><use href="#ic-file"/></svg><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">${pdf.nome}</span><span class="badge badge-${pdf.status||'publicado'}" style="font-size:.6rem">${pdf.status==='pendente'?'Pendente':'Publicado'}</span>${pdf.status==='pendente'?`<button class="btn btn-sm btn-green" onclick="seAppPDF('${pdf.path}')">Aprovar</button>`:''}<a href="${pdf.url}" target="_blank" class="btn btn-sm btn-ghost">Ver</a><button class="btn btn-sm btn-red" onclick="seRmPDF('${pdf.path}','${pdf.nome}')"><svg class="si" style="width:10px;height:10px"><use href="#ic-trash"/></svg></button></div>`).join('');
+
+  ed.innerHTML=`<div class="se-header"><div class="se-header-title"><svg class="si"><use href="#ic-edit"/></svg> ${a.titulo}</div><div style="display:flex;gap:8px;align-items:center"><span class="se-save-status" id="se-status"></span><button class="btn btn-pri" onclick="seSave()"><svg class="si" style="width:13px;height:13px"><use href="#ic-save"/></svg> Publicar</button></div></div>
+  <div class="se-body">
+    <div class="alert alert-ok" id="se-ok" style="display:none"></div>
+    <div class="form-grid"><div class="field"><label>Título</label><input type="text" id="se-titulo" value="${a.titulo||''}"></div><div class="field"><label>Tipo</label><select id="se-tipo"><option value="normal" ${a.tipo==='normal'?'selected':''}>Aula</option><option value="prova" ${a.tipo==='prova'?'selected':''}>Prova</option><option value="recup" ${a.tipo==='recup'?'selected':''}>Recuperação</option></select></div></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-target"/></svg> Objetivo e Habilidades</div><div class="field"><label>Objetivo</label><textarea id="se-obj" rows="2">${a.objetivo||''}</textarea></div><div class="field"><label>Habilidades BNCC</label><input type="text" id="se-hab" value="${a.hab||''}" placeholder="Ex: EF06PLA01"></div></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-bulb"/></svg> Conteúdo para o Professor</div>
+      <div class="wysiwyg-wrap"><div class="wysiwyg-toolbar"><button class="tb-btn" onclick="seFmt('bold')"><strong>B</strong></button><button class="tb-btn" onclick="seFmt('italic')"><em>I</em></button><button class="tb-btn" onclick="seFmt('underline')"><u>U</u></button><div class="tb-sep"></div><button class="tb-btn" onclick="seFmt('formatBlock','H3')">T</button><button class="tb-btn" onclick="seFmt('insertUnorderedList')"><svg class="si" style="width:12px;height:12px"><use href="#ic-layers"/></svg></button><button class="tb-btn" onclick="seFmt('insertOrderedList')">1.</button><div class="tb-sep"></div><button class="tb-btn" style="position:relative;overflow:hidden" onclick="document.getElementById('se-color').click()">A<span style="display:block;width:14px;height:3px;background:var(--red);border-radius:2px;margin-top:1px"></span></button><input type="color" id="se-color" style="position:absolute;opacity:0;width:0;height:0" onchange="seFmtC(this.value)"><div class="tb-sep"></div><button class="tb-btn" onclick="document.getElementById('seImgInput').click()"><svg class="si" style="width:14px;height:14px"><use href="#ic-camera"/></svg></button><div class="tb-sep"></div><button class="tb-btn" onclick="seFmt('removeFormat')"><svg class="si" style="width:12px;height:12px"><use href="#ic-x"/></svg></button></div>
+      <div class="wysiwyg-body" id="se-conteudo" contenteditable="true" data-placeholder="Conteúdo para o professor...">${a.conteudo||''}</div></div></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-clock"/></svg> Desenvolvimento (50 min)</div><div class="se-steps" id="se-steps-list">${stH}</div><button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="seAddStep()"><svg class="si" style="width:11px;height:11px"><use href="#ic-plus"/></svg> Passo</button></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-star"/></svg> Atividades</div><div class="field"><textarea id="se-atividades" rows="4" placeholder="Descreva as atividades...">${atText}</textarea></div></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-box"/></svg> Materiais</div><div class="field"><label>Um por linha</label><textarea id="se-materiais" rows="3">${materiais}</textarea></div></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-file"/></svg> PDFs</div><div id="se-pdf-list">${pdH||'<p style="font-size:.82rem;color:var(--text3)">Nenhum PDF.</p>'}</div><div class="se-upload-zone" onclick="document.getElementById('sePdfInput').click()" style="margin-top:8px"><svg class="si" style="width:18px;height:18px;display:block;margin:0 auto 4px;color:var(--pri)"><use href="#ic-upload"/></svg><strong>Clique</strong> para enviar PDF</div><div class="se-prog-wrap" id="se-prog-wrap"><div class="se-prog-bar"><div class="se-prog-fill" id="se-prog-fill" style="width:0%"></div></div></div></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-check"/></svg> Avaliação</div><div class="field"><textarea id="se-aval" rows="2">${a.avaliacao||''}</textarea></div></div>
+    <div class="se-section"><div class="se-section-title"><svg><use href="#ic-book"/></svg> Referências</div><div class="field"><textarea id="se-refs" rows="2">${a.referencias||''}</textarea></div></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--border)"><button class="btn btn-pri" onclick="seSave()"><svg class="si" style="width:13px;height:13px"><use href="#ic-save"/></svg> Publicar aula</button></div>
+  </div>`;
+
+  document.getElementById('seImgInput').onchange=async function(e){const f=e.target.files[0];if(!f||!f.type.startsWith('image/'))return;if(f.size>5*1024*1024){alert('Máx 5 MB.');return;}const p=`imagens/${currentDiscId}/${bimId}/${aulaId}/${Date.now()}_${f.name}`;const r=sRef(storage,p);const t=uploadBytesResumable(r,f);t.on('state_changed',null,er=>alert(er.message),async()=>{const url=await getDownloadURL(t.snapshot.ref);document.getElementById('se-conteudo').focus();document.execCommand('insertHTML',false,`<img src="${url}" alt="${f.name}" style="max-width:100%;border-radius:6px;margin:6px 0">`);document.getElementById('seImgInput').value='';});};
+  document.getElementById('sePdfInput').onchange=function(e){seUpPDF(e.target.files[0]);};
+};
+
+window.seFmt=function(c,v){document.getElementById('se-conteudo').focus();document.execCommand(c,false,v||null);};
+window.seFmtC=function(c){document.getElementById('se-conteudo').focus();document.execCommand('foreColor',false,c);};
+window.seAddStep=function(){const l=document.getElementById('se-steps-list');const c=l.querySelectorAll('.se-step-row').length;const d=document.createElement('div');d.innerHTML=`<div class="se-step-row" id="ses-${c}"><div class="se-step-num">${c+1}</div><textarea></textarea><button class="se-rm" onclick="seRmStep(${c})">×</button></div>`;l.appendChild(d.firstElementChild);};
+window.seRmStep=function(i){document.getElementById('ses-'+i)?.remove();document.querySelectorAll('.se-step-row').forEach((r,idx)=>{r.id='ses-'+idx;r.querySelector('.se-step-num').textContent=idx+1;r.querySelector('button').setAttribute('onclick',`seRmStep(${idx})`);});};
+
+window.seSave=async function(){
+  if(!currentDiscId||!currentBimId||!activeAulaId)return;
+  const st=document.getElementById('se-status');st.className='se-save-status ok';st.textContent='Salvando...';
+  const passos=[...document.querySelectorAll('#se-steps-list textarea')].map(t=>t.value.trim()).filter(Boolean);
+  const materiais=(document.getElementById('se-materiais')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  const atRaw=(document.getElementById('se-atividades')?.value||'').trim();const atividades=atRaw?[atRaw]:[];
+  const conteudo=document.getElementById('se-conteudo')?.innerHTML||'';
+  const avaliacao=document.getElementById('se-aval')?.value||'';const referencias=document.getElementById('se-refs')?.value||'';
+  try{await updateDoc(doc(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas',activeAulaId),{
+    titulo:document.getElementById('se-titulo').value.trim(),tipo:document.getElementById('se-tipo').value,
+    objetivo:document.getElementById('se-obj')?.value||'',hab:document.getElementById('se-hab')?.value||'',
+    conteudo,conteudoPublicado:conteudo,passos,passosPublicados:passos,atividades,atividadesPublicadas:atividades,
+    materiais,materiaisPublicados:materiais,avaliacao,avaliacaoPublicada:avaliacao,referencias,referenciasPublicadas:referencias,
+    status:'publicado',sug_conteudo:null,sug_passos:null,sug_atividades:null,sug_materiais:null,sug_referencias:null,sug_avaliacao:null,
+    ultimaEdicao:serverTimestamp(),editadoPor:ME.uid
+  });st.textContent='Publicado!';const ok=document.getElementById('se-ok');ok.textContent='Aula publicada com sucesso!';ok.style.display='block';setTimeout(()=>{ok.style.display='none';st.textContent='';},3000);await renderTree();loadDashboard();}catch(e){alert('Erro: '+e.message);st.textContent='Erro';}
+};
+
+async function seUpPDF(file){if(!file||!activeAulaId)return;if(file.type!=='application/pdf'){alert('Apenas PDFs.');return;}if(file.size>10*1024*1024){alert('Máx 10 MB.');return;}
+  const prog=document.getElementById('se-prog-wrap');const fill=document.getElementById('se-prog-fill');prog.style.display='block';
+  const path=`pdfs/${currentDiscId}/${currentBimId}/${activeAulaId}/${Date.now()}_${file.name}`;const r=sRef(storage,path);const t=uploadBytesResumable(r,file);
+  t.on('state_changed',s=>{fill.style.width=Math.round(s.bytesTransferred/s.totalBytes*100)+'%';},er=>{alert(er.message);prog.style.display='none';},async()=>{
+    const url=await getDownloadURL(t.snapshot.ref);const pd={nome:file.name,url,path,tamanho:(file.size/1024).toFixed(0)+' KB',status:'publicado',adicionadoEm:new Date().toISOString()};
+    const s=await getDoc(doc(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas',activeAulaId));const pdfs=[...(s.data()?.pdfs||[]),pd];
+    await updateDoc(doc(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas',activeAulaId),{pdfs});prog.style.display='none';fill.style.width='0%';document.getElementById('sePdfInput').value='';openEditor(currentBimId,activeAulaId);
+  });
+}
+window.seAppPDF=async function(p){const s=await getDoc(doc(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas',activeAulaId));const pdfs=(s.data()?.pdfs||[]).map(x=>x.path===p?{...x,status:'publicado'}:x);await updateDoc(doc(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas',activeAulaId),{pdfs});openEditor(currentBimId,activeAulaId);};
+window.seRmPDF=async function(p,n){if(!confirm(`Remover "${n}"?`))return;try{await deleteObject(sRef(storage,p));}catch(e){}const s=await getDoc(doc(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas',activeAulaId));const pdfs=(s.data()?.pdfs||[]).filter(x=>x.path!==p);await updateDoc(doc(db,'disciplinas',currentDiscId,'bimestres',currentBimId,'aulas',activeAulaId),{pdfs});openEditor(currentBimId,activeAulaId);};
+
+// ── APPROVALS ──
+async function loadAprov(){const c=document.getElementById('aprov-list');c.innerHTML='<div class="loading"><div class="spinner"></div> Buscando...</div>';try{const dS=await getDocs(collection(db,'disciplinas'));let items=[];for(const d of dS.docs){const bS=await getDocs(collection(db,'disciplinas',d.id,'bimestres'));for(const b of bS.docs){const aS=await getDocs(collection(db,'disciplinas',d.id,'bimestres',b.id,'aulas'));for(const aula of aS.docs){const data=aula.data();if(data.status==='pendente')items.push({type:'aula',discId:d.id,discNome:d.data().nome,bimId:b.id,bimNome:b.data().nome,aulaId:aula.id,titulo:data.titulo,data});const pp=(data.pdfs||[]).filter(p=>p.status==='pendente');if(pp.length)items.push({type:'pdf',discId:d.id,discNome:d.data().nome,bimId:b.id,bimNome:b.data().nome,aulaId:aula.id,titulo:data.titulo,pdfs:pp});}}}const bg=document.getElementById('aprov-badge');if(items.length>0){bg.textContent=items.length;bg.style.display='inline';}else bg.style.display='none';if(!items.length){c.innerHTML='<div class="empty-box"><svg style="width:48px;height:48px;color:var(--green)"><use href="#ic-check"/></svg><p style="color:var(--text3);font-size:.9rem;margin-top:8px">Nenhuma sugestão pendente.</p></div>';return;}c.innerHTML=items.map(item=>{if(item.type==='pdf')return`<div class="aprov-card"><div class="aprov-header"><div><div class="aprov-title"><svg class="si"><use href="#ic-file"/></svg> PDF — ${item.titulo}</div><div class="aprov-meta">${item.discNome} · ${item.bimNome}</div></div></div>${item.pdfs.map(pdf=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:8px"><svg class="si"><use href="#ic-file"/></svg><div style="flex:1"><div style="font-weight:600;font-size:.84rem">${pdf.nome}</div><div style="font-size:.71rem;color:var(--text3)">${pdf.tamanho||''}</div></div><a href="${pdf.url}" target="_blank" class="btn btn-sm btn-ghost">Ver</a><button class="btn btn-sm btn-green" onclick="aprovPDF('${item.discId}','${item.bimId}','${item.aulaId}','${pdf.path}')">Aprovar</button><button class="btn btn-sm btn-red" onclick="rejPDF('${item.discId}','${item.bimId}','${item.aulaId}','${pdf.path}')">Rejeitar</button></div>`).join('')}</div>`;const dt=item.data;return`<div class="aprov-card"><div class="aprov-header"><div><div class="aprov-title"><svg class="si"><use href="#ic-edit"/></svg> ${item.titulo}</div><div class="aprov-meta">${item.discNome} · ${item.bimNome}</div></div><div class="aprov-actions"><button class="btn btn-sm btn-green" onclick="aprovAula('${item.discId}','${item.bimId}','${item.aulaId}')">Aprovar</button><button class="btn btn-sm btn-red" onclick="rejAula('${item.discId}','${item.bimId}','${item.aulaId}')">Rejeitar</button></div></div>${dt.sug_conteudo?`<div class="aprov-label">Conteúdo sugerido:</div><div class="aprov-content">${dt.sug_conteudo}</div>`:''}${dt.sug_passos&&dt.sug_passos.length?`<div class="aprov-label">Passos (${dt.sug_passos.length}):</div><div class="aprov-content">${dt.sug_passos.map((p,i)=>`<p><strong>${i+1}.</strong> ${p}</p>`).join('')}</div>`:''}</div>`;}).join('');}catch(e){c.innerHTML=`<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:8px;padding:14px;color:var(--red);font-size:.85rem">Erro: ${e.message}</div>`;}}
+window.aprovAula=async function(dI,bI,aI){if(!confirm('Aprovar?'))return;const s=await getDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI));const d=s.data();const u={status:'publicado',ultimaPublicacao:serverTimestamp()};if(d.sug_conteudo!=null){u.conteudo=d.sug_conteudo;u.conteudoPublicado=d.sug_conteudo;u.sug_conteudo=null;}if(d.sug_passos!=null){u.passos=d.sug_passos;u.passosPublicados=d.sug_passos;u.sug_passos=null;}if(d.sug_atividades!=null){u.atividades=d.sug_atividades;u.atividadesPublicadas=d.sug_atividades;u.sug_atividades=null;}if(d.sug_materiais!=null){u.materiais=d.sug_materiais;u.materiaisPublicados=d.sug_materiais;u.sug_materiais=null;}if(d.sug_referencias!=null){u.referencias=d.sug_referencias;u.referenciasPublicadas=d.sug_referencias;u.sug_referencias=null;}if(d.sug_avaliacao!=null){u.avaliacao=d.sug_avaliacao;u.avaliacaoPublicada=d.sug_avaliacao;u.sug_avaliacao=null;}await updateDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI),u);loadAprov();loadDashboard();};
+window.rejAula=async function(dI,bI,aI){if(!confirm('Rejeitar?'))return;
+  const sTmp=await getDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI));
+  const dTmp=sTmp.data();
+  await updateDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI),{status:'publicado',sug_conteudo:null,sug_passos:null,sug_atividades:null,sug_materiais:null,sug_referencias:null,sug_avaliacao:null});
+  if(dTmp.sugeridoPor){const dS=await getDoc(doc(db,'disciplinas',dI));sendNotification(dTmp.sugeridoPor,'rejeitado',dTmp.titulo||'Aula',dS.data()?.nome||dI);}
+  loadAprov();loadDashboard();};
+window.aprovPDF=async function(dI,bI,aI,p){const s=await getDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI));const pdfs=(s.data()?.pdfs||[]).map(x=>x.path===p?{...x,status:'publicado'}:x);await updateDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI),{pdfs});loadAprov();loadDashboard();};
+window.rejPDF=async function(dI,bI,aI,p){if(!confirm('Rejeitar PDF?'))return;const s=await getDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI));const pdfs=(s.data()?.pdfs||[]).filter(x=>x.path!==p);await updateDoc(doc(db,'disciplinas',dI,'bimestres',bI,'aulas',aI),{pdfs});loadAprov();loadDashboard();};
+
+// Override avatar upload to use crop
+function setupAvatarUpload(inputId,uid,onSuccess){
+  document.getElementById(inputId).onchange=function(e){
+    const f=e.target.files[0];if(!f||!f.type.startsWith('image/'))return;
+    if(f.size>5*1024*1024){alert('Máx 5 MB.');return;}
+    openCropModal(f,async function(blob){
+      const path=`avatares/${uid}/${Date.now()}.jpg`;const r=sRef(storage,path);
+      const task=uploadBytesResumable(r,blob);
+      task.on('state_changed',null,er=>alert(er.message),async()=>{
+        const url=await getDownloadURL(task.snapshot.ref);
+        await updateDoc(doc(db,'usuarios',uid),{fotoURL:url});
+        if(onSuccess)onSuccess(url);
+        document.getElementById(inputId).value='';
+      });
+    });
+  };
+}
+// ── PRESENÇA ONLINE ────────────────────────────────────────────────────────
+let _presInterval = null;
+
+async function setOnline(uid) {
+  try {
+    await updateDoc(doc(db,'usuarios',uid),{
+      online:true,
+      ultimoAcesso:serverTimestamp(),
+      paginaAtual:'admin.html'
+    });
+  } catch(e){}
+}
+
+async function setOffline(uid) {
+  try {
+    await updateDoc(doc(db,'usuarios',uid),{online:false,ultimoAcesso:serverTimestamp()});
+  } catch(e){}
+}
+
+function startPresence(uid) {
+  setOnline(uid);
+  _presInterval = setInterval(()=>setOnline(uid), 60000);
+  window.addEventListener('beforeunload',()=>{
+    if(_presInterval) clearInterval(_presInterval);
+    navigator.sendBeacon && navigator.sendBeacon('/ping'); // graceful
+    setOffline(uid);
+  });
+  document.addEventListener('visibilitychange',()=>{
+    document.hidden ? setOffline(uid) : setOnline(uid);
+  });
+}
+
+// ── QUEM ESTÁ ONLINE ───────────────────────────────────────────────────────
+let _onlineUnsub = null;
+
+function watchOnline() {
+  const container = document.getElementById('dash-online');
+  const countEl = document.getElementById('online-count');
+  if(!container) return;
+
+  // Real-time listener on usuarios where online==true
+  _onlineUnsub = onSnapshot(
+    query(collection(db,'usuarios'), where('online','==',true)),
+    snap => {
+      countEl.textContent = snap.size + ' online';
+      if(snap.empty) {
+        container.innerHTML = '<p style="font-size:.8rem;color:var(--text3);padding:8px 0">Nenhum professor online agora.</p>';
+        return;
+      }
+      container.innerHTML = snap.docs.map(d => {
+        const u = d.data();
+        const ini = (u.nome||'?').charAt(0).toUpperCase();
+        const pg = u.paginaAtual || '';
+        const pgLabel = pg.includes('editor') ? 'Editando aulas' : pg.includes('admin') ? 'Painel admin' : 'Navegando';
+        const ago = u.ultimoAcesso?.toDate ? _timeAgo(u.ultimoAcesso.toDate()) : '';
+        return \`<div class="user-online-row">
+          <div class="user-online-avatar">\${u.fotoURL ? '<img src="'+u.fotoURL+'">' : ini}</div>
+          <div class="user-online-info">
+            <div class="user-online-nome">\${u.nome||'Professor'}</div>
+            <div class="user-online-meta">\${pgLabel}\${ago ? ' · '+ago : ''}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="user-online-badge \${u.role==='admin'?'badge-admin-sm':'badge-colab-sm'}">\${u.role==='admin'?'Admin':'Colab'}</span>
+            <span class="online-dot"></span>
+          </div>
+        </div>\`;
+      }).join('');
+    },
+    err => {
+      console.warn('watchOnline:', err.message);
+      const container = document.getElementById('dash-online');
+      if(container) container.innerHTML = '<p style="font-size:.8rem;color:var(--text3);padding:8px 0">Não foi possível carregar presenças em tempo real.</p>';
+    }
+  );
+}
+
+function _timeAgo(date) {
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  if(diff < 60) return 'agora';
+  if(diff < 3600) return Math.floor(diff/60)+'min atrás';
+  return Math.floor(diff/3600)+'h atrás';
+}
+
+// ── ÚLTIMOS ACESSOS ────────────────────────────────────────────────────────
+async function loadRecentAccess() {
+  const container = document.getElementById('dash-recent');
+  if(!container) return;
+  try {
+    const snap = await getDocs(collection(db,'usuarios'));
+    if(snap.empty) { container.innerHTML='<p style="font-size:.8rem;color:var(--text3)">Sem registros.</p>'; return; }
+    const sorted = snap.docs
+      .filter(d => d.data().ultimoAcesso)
+      .sort((a,b) => (b.data().ultimoAcesso?.toMillis?.()||0) - (a.data().ultimoAcesso?.toMillis?.()||0))
+      .slice(0,5);
+    container.innerHTML = sorted.map(d => {
+      const u = d.data();
+      if(!u.ultimoAcesso) return '';
+      const dt = u.ultimoAcesso.toDate ? u.ultimoAcesso.toDate() : new Date();
+      const label = dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) + ' ' +
+                    dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      return \`<div class="access-stat">
+        <span class="access-stat-label">\${u.nome||'—'}</span>
+        <span class="access-stat-val" style="font-size:.72rem;font-weight:500;color:var(--text3)">\${label}</span>
+      </div>\`;
+    }).join('');
+  } catch(e) { container.innerHTML='<p style="font-size:.8rem;color:var(--red)">Erro ao carregar.</p>'; }
+}
+
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// CONFIGURAÇÕES
+// ══════════════════════════════════════════════════════════════════════════
+
+window.loadConfig = async function() {
+  try {
+    const s = await getDoc(doc(db,'configuracoes','escola'));
+    if(!s.exists()) return;
+    const d = s.data();
+    // Logo preview
+    if(d.logoURL) {
+      const prev = document.getElementById('config-logo-preview');
+      if(prev) prev.innerHTML = `<img src="${d.logoURL}" style="width:100%;height:100%;object-fit:contain;border-radius:50%">`;
+      const lbl = document.getElementById('config-logo-url-label');
+      if(lbl) lbl.textContent = 'Logo cadastrada';
+    }
+    // Fields
+    const fields = {
+      'cfg-nome-escola': d.nomeEscola||'',
+      'cfg-municipio': d.municipio||'',
+      'cfg-email': d.email||'',
+      'cfg-whatsapp': d.whatsapp||'',
+      'cfg-endereco': d.endereco||''
+    };
+    Object.entries(fields).forEach(([id,val]) => {
+      const el = document.getElementById(id);
+      if(el) el.value = val;
+    });
+    // Notif
+    const notif = document.getElementById('cfg-notif');
+    if(notif) notif.checked = !!d.notificacoesAtivas;
+  } catch(e) { console.warn('loadConfig:', e.message); }
+};
+
+window.uploadLogo = async function(file) {
+  if(!file) return;
+  if(file.size > 3*1024*1024) { alert('Imagem máx 3MB.'); return; }
+  const prog = document.getElementById('config-logo-progress');
+  const bar = document.getElementById('config-logo-bar');
+  const status = document.getElementById('config-logo-status');
+  prog.style.display = 'block';
+  try {
+    const path = 'configuracoes/logo_escola_'+Date.now()+'.'+file.name.split('.').pop();
+    const r = sRef(storage, path);
+    const task = uploadBytesResumable(r, file);
+    await new Promise((res,rej) => task.on('state_changed',
+      snap => {
+        const pct = Math.round(snap.bytesTransferred/snap.totalBytes*100);
+        bar.style.width = pct+'%';
+        status.textContent = 'Enviando... '+pct+'%';
+      }, rej, res
+    ));
+    const url = await getDownloadURL(task.snapshot.ref);
+    // Save to Firestore
+    await setDoc(doc(db,'configuracoes','escola'), {logoURL: url}, {merge:true});
+    status.textContent = 'Logo enviada com sucesso!';
+    bar.style.background = 'var(--green)';
+    // Update preview
+    const prev = document.getElementById('config-logo-preview');
+    if(prev) prev.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:contain;border-radius:50%">`;
+    document.getElementById('config-logo-url-label').textContent = 'Logo cadastrada';
+    // Update topbar
+    document.querySelectorAll('.mira-logo-img').forEach(el=>{el.src=url;el.style.display='inline-block';});
+    setTimeout(()=>{prog.style.display='none';},3000);
+  } catch(e) {
+    status.textContent = 'Erro: '+e.message;
+    bar.style.background = 'var(--red)';
+  }
+};
+
+window.saveConfig = async function() {
+  const status = document.getElementById('cfg-status');
+  try {
+    await setDoc(doc(db,'configuracoes','escola'), {
+      nomeEscola: document.getElementById('cfg-nome-escola').value.trim(),
+      municipio:  document.getElementById('cfg-municipio').value.trim(),
+      email:      document.getElementById('cfg-email').value.trim(),
+      whatsapp:   document.getElementById('cfg-whatsapp').value.trim(),
+      endereco:   document.getElementById('cfg-endereco').value.trim(),
+    }, {merge:true});
+    status.style.display = 'block';
+    status.style.background = 'var(--green-bg)';
+    status.style.color = 'var(--green-t)';
+    status.textContent = 'Configurações salvas com sucesso!';
+    setTimeout(()=>status.style.display='none', 3000);
+  } catch(e) {
+    status.style.display = 'block';
+    status.style.background = 'var(--red-bg)';
+    status.style.color = 'var(--red)';
+    status.textContent = 'Erro: '+e.message;
+  }
+};
+
+window.saveNotifConfig = async function() {
+  const val = document.getElementById('cfg-notif')?.checked || false;
+  await setDoc(doc(db,'configuracoes','escola'), {notificacoesAtivas: val}, {merge:true});
+  alert(val ? 'Notificações ativadas!' : 'Notificações desativadas.');
+};
+
+// ── LOGO FROM FIRESTORE ────────────────────────────────────────────────────
+async function loadLogo() {
+  try {
+    const s = await getDoc(doc(db,'configuracoes','escola'));
+    if(s.exists() && s.data().logoURL) {
+      const url = s.data().logoURL;
+      document.querySelectorAll('.mira-logo-img').forEach(el=>{
+        el.src=url; el.style.display='inline-block';
+      });
+      document.querySelectorAll('.mira-logo-svg').forEach(el=>el.style.display='none');
+    }
+  } catch(e){}
+}
+
+// ── NOTIFICAÇÕES ────────────────────────────────────────────────────────────
+async function sendNotification(toUid, tipo, aulaTitle, discNome) {
+  try {
+    const cfg = await getDoc(doc(db,'configuracoes','escola'));
+    if(cfg.exists() && cfg.data().notificacoesAtivas === false) return;
+  } catch(e) {}
+  try {
+    await addDoc(collection(db,'notificacoes'), {
+      paraUid: toUid, tipo, aulaTitle, discNome,
+      lida: false, criadaEm: serverTimestamp()
+    });
+  } catch(e) { console.warn('notif:', e.message); }
+}
+
+</script>
+</body>
+</html>
