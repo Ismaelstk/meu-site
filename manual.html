@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>(function(){if(localStorage.getItem('mira-theme')==='dark')document.documentElement.classList.add('dark');})()</script>
+<script>
+window.toggleDark = function(){
+  var isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('mira-theme', isDark ? 'dark' : 'light');
+  var moon = document.getElementById('dark-icon-moon');
+  var sun  = document.getElementById('dark-icon-sun');
+  if(moon) moon.style.display = isDark ? 'none' : '';
+  if(sun)  sun.style.display  = isDark ? '' : 'none';
+};
+document.addEventListener('DOMContentLoaded', function(){
+  var isDark = document.documentElement.classList.contains('dark');
+  var moon = document.getElementById('dark-icon-moon');
+  var sun  = document.getElementById('dark-icon-sun');
+  if(moon) moon.style.display = isDark ? 'none' : '';
+  if(sun)  sun.style.display  = isDark ? '' : 'none';
+});
+</script>
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA — Manual do Professor</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F8F7F2;--card:#FFFFFF;--card2:#F0EEE8;--border:#DDD9CF;
+  --text:#0F2461;--text2:#1A3A8F;--text3:#6A7F9A;
+  --shadow:0 1px 3px rgba(15,36,97,.07),0 4px 12px rgba(15,36,97,.05);
+  --shadow2:0 2px 8px rgba(15,36,97,.10),0 8px 24px rgba(15,36,97,.08);
+  --r:14px;--rs:10px;
+  --pri:#1A3A8F;--pri-bg:#EEF0FB;--pri-t:#0F2461;
+  --sec:#2E9E6B;--sec-bg:#E8F5EF;--sec-t:#1A6B47;
+  --ter:#E8B800;--ter-bg:#FFFBE6;--ter-t:#9A7800;
+  --qua:#2E5FD4;--qua-bg:#E8EEFB;--qua-t:#1A3A8F;
+  --red:#C0392B;--red-bg:#FEECEC;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.65;-webkit-font-smoothing:antialiased}
+.app{max-width:1140px;margin:0 auto;padding:0 20px}
+svg.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+svg.icon-sm{width:16px;height:16px}
+svg.icon-lg{width:24px;height:24px}
+
+/* ── THEMES PER GRADE ── */
+[data-theme="6"]{--pri:#1A3A8F;--pri-bg:#EEF0FB;--pri-t:#0F2461;--grad:linear-gradient(135deg,#1A3A8F,#2E5FD4)}
+[data-theme="7"]{--pri:#2E9E6B;--pri-bg:#E8F5EF;--pri-t:#1A6B47;--grad:linear-gradient(135deg,#2E9E6B,#3DC48A)}
+[data-theme="8"]{--pri:#E8B800;--pri-bg:#FFFBE6;--pri-t:#9A7800;--grad:linear-gradient(135deg,#E8B800,#F0D040)}
+[data-theme="9"]{--pri:#2E5FD4;--pri-bg:#E8EEFB;--pri-t:#1A3A8F;--grad:linear-gradient(135deg,#2E5FD4,#5580F0)}
+
+/* ── HEADER ── */
+.hero{text-align:center;padding:56px 20px 24px;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(26,58,143,.08),transparent 70%);border-radius:50%;pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:6px 16px;border-radius:40px;font-size:.75rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+.hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(2rem,5.5vw,3.2rem);font-weight:800;letter-spacing:-.5px;line-height:1.1;color:var(--text)}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,#1A3A8F,#2E9E6B,#E8B800,#2E5FD4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text3);margin-top:10px;font-size:1rem;max-width:500px;margin-left:auto;margin-right:auto}
+
+/* ── GRADE CARDS ── */
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:32px 0 48px}
+@media(max-width:700px){.grades{grid-template-columns:1fr 1fr}}
+.g-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px 20px;text-align:center;cursor:pointer;transition:all .3s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden}
+.g-card:hover{transform:translateY(-4px);box-shadow:var(--shadow2);border-color:transparent}
+.g-card .g-stripe{position:absolute;top:0;left:0;right:0;height:4px;transition:height .3s}
+.g-card:hover .g-stripe{height:6px}
+.g-card[data-g="6"] .g-stripe{background:linear-gradient(90deg,#1A3A8F,#2E5FD4)}
+.g-card[data-g="7"] .g-stripe{background:linear-gradient(90deg,#2E9E6B,#3DC48A)}
+.g-card[data-g="8"] .g-stripe{background:linear-gradient(90deg,#E8B800,#F0D040)}
+.g-card[data-g="9"] .g-stripe{background:linear-gradient(90deg,#2E5FD4,#5580F0)}
+.g-card .g-num{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800}
+.g-card[data-g="6"] .g-num{background:linear-gradient(135deg,#1A3A8F,#2E5FD4)}
+.g-card[data-g="7"] .g-num{background:linear-gradient(135deg,#2E9E6B,#3DC48A)}
+.g-card[data-g="8"] .g-num{background:linear-gradient(135deg,#E8B800,#F0D040)}
+.g-card[data-g="9"] .g-num{background:linear-gradient(135deg,#2E5FD4,#5580F0)}
+.g-card .g-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:700}
+.g-card .g-sub{font-size:.8rem;color:var(--text3);margin-top:4px}
+
+/* ── VIEWS ── */
+.view{display:none}.view.active{display:block;animation:fadeU .4s ease}
+@keyframes fadeU{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;gap:12px;padding:20px 0 8px;flex-wrap:wrap}
+.back-btn{background:var(--card);border:1px solid var(--border);border-radius:40px;padding:8px 18px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.back-btn:hover{background:var(--card2);transform:translateX(-2px)}
+.grade-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:40px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:700;color:#fff}
+
+/* ── BIMESTER TABS ── */
+.bim-tabs{display:flex;gap:6px;margin:16px 0;flex-wrap:wrap}
+.bim-tab{background:var(--card);border:1.5px solid var(--border);border-radius:40px;padding:10px 22px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;color:var(--text3);cursor:pointer;transition:all .25s}
+.bim-tab:hover{color:var(--text);border-color:var(--pri)}
+.bim-tab.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+
+.page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin:8px 0 4px}
+.page-sub{color:var(--text3);font-size:.88rem;margin-bottom:20px}
+
+/* ── LESSON LIST ── */
+.l-list{display:flex;flex-direction:column;gap:10px;padding-bottom:48px}
+.l-item{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:16px 20px;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:14px}
+.l-item:hover{box-shadow:var(--shadow);transform:translateX(3px);border-color:var(--pri)}
+.l-badge{min-width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;flex-shrink:0}
+.l-badge.normal{background:var(--pri-bg);color:var(--pri-t)}
+.l-badge.prova{background:#FFFBE6;color:#A07800}
+.l-badge.recup{background:#E8F5EF;color:#1A6B47}
+.l-content{flex:1;min-width:0}
+.l-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.95rem}
+.l-desc{font-size:.8rem;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.l-tag{font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:500}
+.l-tag.time{background:var(--card2);color:var(--text3)}
+.l-tag.hab{background:var(--pri-bg);color:var(--pri-t)}
+.l-arrow{color:var(--text3);flex-shrink:0}
+
+/* ── LESSON DETAIL ── */
+.ld{max-width:820px;margin:0 auto 60px}
+.ld-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:32px;margin-bottom:16px;position:relative;overflow:hidden}
+.ld-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad)}
+.ld-label{font-size:.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ld-hero h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(1.2rem,3vw,1.6rem);font-weight:800;margin-bottom:8px}
+.ld-hero .obj{color:var(--text2);font-size:.92rem;padding:10px 14px;background:var(--pri-bg);border-radius:8px;border-left:3px solid var(--pri)}
+
+.ld-block{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:24px;margin-bottom:12px}
+.ld-block h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;color:var(--text)}
+.ld-block h3 .h-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--pri-t)}
+.h-icon.content{background:var(--pri-bg)}
+.h-icon.steps{background:#E8EEFB;color:#1A3A8F}
+.h-icon.activity{background:#FFFBE6;color:#A07800}
+.h-icon.material{background:#E8F5EF;color:#1A6B47}
+.h-icon.eval{background:#E8F5EF;color:#1A6B47}
+.h-icon.skills{background:var(--card2);color:var(--text3)}
+
+.ld-text{font-size:.9rem;color:var(--text2);line-height:1.75;margin-bottom:12px}
+.ld-text p{margin-bottom:10px}
+.ld-text p:last-child{margin-bottom:0}
+
+.step-list{list-style:none;counter-reset:steps}
+.step-list li{counter-increment:steps;padding:12px 14px 12px 44px;background:var(--card2);border-radius:8px;margin-bottom:6px;font-size:.88rem;color:var(--text2);position:relative;line-height:1.6}
+.step-list li::before{content:counter(steps);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:6px;background:var(--pri);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step-list li strong{color:var(--text);font-weight:600}
+.step-list li .time-tag{display:inline-block;background:var(--pri-bg);color:var(--pri-t);font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:10px;margin-right:6px}
+
+.act-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:10px}
+.act-card h4{font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;color:var(--text)}
+.act-card p{font-size:.85rem;color:var(--text2);line-height:1.65}
+.act-card .act-steps{margin-top:8px;padding-left:18px;font-size:.83rem;color:var(--text2)}
+.act-card .act-steps li{margin-bottom:4px;list-style:disc}
+
+.mat-list{display:flex;flex-direction:column;gap:6px}
+.mat-item{padding:10px 14px;background:var(--card2);border-radius:8px;font-size:.85rem;color:var(--text2);display:flex;align-items:flex-start;gap:8px}
+.mat-item .mat-dot{width:6px;height:6px;border-radius:50%;background:var(--pri);margin-top:7px;flex-shrink:0}
+
+.hab-box{padding:12px 16px;background:var(--card2);border-radius:8px;font-size:.82rem;color:var(--text3);line-height:1.7;cursor:pointer;transition:all .2s}
+.hab-box:hover{background:var(--pri-bg)}
+.hab-box .hab-codes{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);color:var(--text2);font-size:.8rem}
+.hab-box.open .hab-codes{display:block}
+
+.nav-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.nav-btn{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all .2s;text-align:left}
+.nav-btn:last-child{text-align:right}
+.nav-btn:hover{box-shadow:var(--shadow);border-color:var(--pri)}
+.nav-btn .nd{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;font-weight:600}
+.nav-btn .nt{font-weight:600}
+
+/* ── REFS ── */
+.refs-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:48px}
+.refs-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.refs-card p{font-size:.82rem;color:var(--text2);line-height:1.8}
+.refs-card strong{color:var(--text);font-weight:600}
+
+@media print{.back-btn,.bim-tabs,.nav-row,.l-arrow,.topbar{display:none}body{background:#fff}.ld-block,.ld-hero,.l-item{break-inside:avoid;border:1px solid #ddd}}
+@media(max-width:600px){.grades{grid-template-columns:1fr 1fr;gap:10px}.ld-hero{padding:20px 16px}.ld-block{padding:18px 14px}}
+
+/* ── MIRA TOP NAV ── */
+.mira-nav{display:flex;align-items:center;padding:10px 0 0}
+.mira-nav-btn{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 14px 8px 10px;text-decoration:none;transition:all .2s;cursor:pointer}
+.mira-nav-btn:hover{box-shadow:var(--shadow);transform:translateY(-1px);border-color:var(--pri)}
+.mira-nav-btn img{height:28px;width:auto;display:block}
+.mira-nav-btn span{font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:700;color:var(--text3);letter-spacing:.3px}
+
+
+.edu-bg{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:0;overflow:hidden}
+#app{position:relative;z-index:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.topbar-brand { display:flex; align-items:center; }
+.mira-logo-img { display:none; }
+
+
+/* ── PDF DOWNLOAD + PROGRESS ── */
+.lesson-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+.btn-download{display:inline-flex;align-items:center;gap:7px;background:var(--pri);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-download:hover{background:#0F2461;transform:translateY(-1px)}
+.btn-done{display:inline-flex;align-items:center;gap:7px;background:var(--card);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-done:hover{border-color:var(--green);color:var(--green)}
+.btn-done.marcada{background:var(--green-bg);color:var(--green-t);border-color:var(--green)}
+.progress-bar-wrap{background:var(--bg);border-radius:20px;height:8px;margin:10px 0 4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--pri),var(--blue2));border-radius:20px;transition:width .5s ease}
+.progress-label{font-size:.7rem;color:var(--text3)}
+
+/* PRINT STYLES */
+@media print{
+  .topbar,.bim-tabs,.lesson-actions,.back-btn,footer{display:none!important}
+  .ld-hero{padding:0;margin-bottom:16px}
+  .ld-block{break-inside:avoid}
+  body{background:#fff}
+}
+
+
+/* ── DARK MODE ── */
+:root.dark{
+  --bg:#111827;--card:#1F2937;--card2:#374151;--border:#374151;
+  --text:#F9FAFB;--text2:#E5E7EB;--text3:#9CA3AF;
+  --shadow:0 2px 8px rgba(0,0,0,.3);
+  --pri:#4F7FE8;--pri-bg:#1E2A45;--pri-t:#93B4F5;
+  --gold:#F59E0B;--gold-bg:#2A1F00;--gold-t:#FCD34D;
+  --green:#34D399;--green-bg:#022C22;--green-t:#6EE7B7;
+  --orange:#FB923C;--orange-bg:#2A1200;
+  --red:#F87171;--red-bg:#2A0A0A;
+  --blue2:#60A5FA;
+  --pri-gradient:linear-gradient(135deg,#1E3A6E,#2E5FD4);
+}
+
+</style>
+</head>
+<body>
+<div class="edu-bg" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1440 960" preserveAspectRatio="xMidYMid slice">
+  <defs><style>
+    .ed-stroke{fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .c1{stroke:#1A3A8F}.c2{stroke:#2E9E6B}.c3{stroke:#E8B800}.c4{stroke:#2E5FD4}
+    .f1{fill:#1A3A8F}.f2{fill:#2E9E6B}.f3{fill:#E8B800}.f4{fill:#2E5FD4}
+  </style></defs>
+
+  <!-- Caderno aberto (top-left) -->
+  <g transform="translate(40,60) rotate(-8)" opacity=".07">
+    <rect x="0" y="0" width="90" height="110" rx="5" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="45" y1="0" x2="45" y2="110" class="ed-stroke c1" stroke-width="1.5"/>
+    <line x1="12" y1="25" x2="38" y2="25" class="ed-stroke c4" stroke-width="1.2"/>
+    <line x1="12" y1="35" x2="36" y2="35" class="ed-stroke c4" stroke-width="1.2"/>
+    <line x1="12" y1="45" x2="33" y2="45" class="ed-stroke c4" stroke-width="1.2"/>
+    <line x1="12" y1="55" x2="38" y2="55" class="ed-stroke c4" stroke-width="1.2"/>
+    <line x1="52" y1="25" x2="82" y2="25" class="ed-stroke c4" stroke-width="1.2"/>
+    <line x1="52" y1="35" x2="78" y2="35" class="ed-stroke c4" stroke-width="1.2"/>
+    <line x1="52" y1="45" x2="80" y2="45" class="ed-stroke c4" stroke-width="1.2"/>
+    <circle cx="8" cy="15" r="3" class="ed-stroke c1" stroke-width="1.5"/>
+    <circle cx="8" cy="55" r="3" class="ed-stroke c1" stroke-width="1.5"/>
+    <circle cx="8" cy="95" r="3" class="ed-stroke c1" stroke-width="1.5"/>
+  </g>
+
+  <!-- Lápis (top-center-left) -->
+  <g transform="translate(260,35) rotate(25)" opacity=".08">
+    <rect x="0" y="0" width="10" height="70" rx="2" class="ed-stroke c1" stroke-width="1.8"/>
+    <polygon points="0,70 10,70 5,85" class="ed-stroke c3" stroke-width="1.5" fill="none"/>
+    <line x1="5" y1="78" x2="5" y2="85" class="ed-stroke c1" stroke-width="1"/>
+    <rect x="0" y="0" width="10" height="8" rx="2" class="f3" opacity=".5"/>
+  </g>
+
+  <!-- Livro aberto (top-center) -->
+  <g transform="translate(500,40)" opacity=".07">
+    <path d="M0,15 Q40,0 80,15 L80,75 Q40,60 0,75 Z" class="ed-stroke c1" stroke-width="2"/>
+    <path d="M80,15 Q120,0 160,15 L160,75 Q120,60 80,75 Z" class="ed-stroke c4" stroke-width="2"/>
+    <line x1="80" y1="15" x2="80" y2="75" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="12" y1="30" x2="65" y2="26" class="ed-stroke c1" stroke-width="1" opacity=".5"/>
+    <line x1="12" y1="40" x2="65" y2="36" class="ed-stroke c1" stroke-width="1" opacity=".5"/>
+    <line x1="12" y1="50" x2="60" y2="46" class="ed-stroke c1" stroke-width="1" opacity=".5"/>
+    <line x1="95" y1="26" x2="148" y2="30" class="ed-stroke c4" stroke-width="1" opacity=".5"/>
+    <line x1="95" y1="36" x2="148" y2="40" class="ed-stroke c4" stroke-width="1" opacity=".5"/>
+  </g>
+
+  <!-- Capelo/formatura (top-right) -->
+  <g transform="translate(880,45)" opacity=".08">
+    <polygon points="40,0 80,18 40,36 0,18" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="40" y1="36" x2="40" y2="52" class="ed-stroke c1" stroke-width="2"/>
+    <path d="M20,26 L20,42 Q40,52 60,42 L60,26" class="ed-stroke c1" stroke-width="1.8"/>
+    <line x1="72" y1="18" x2="72" y2="48" class="ed-stroke c3" stroke-width="2"/>
+    <circle cx="72" cy="50" r="3" class="f3"/>
+  </g>
+
+  <!-- Esquadro/triângulo (top-right-2) -->
+  <g transform="translate(1120,50) rotate(12)" opacity=".07">
+    <polygon points="0,70 70,70 0,0" class="ed-stroke c4" stroke-width="2"/>
+    <line x1="0" y1="55" x2="55" y2="55" class="ed-stroke c4" stroke-width="1" opacity=".4"/>
+    <line x1="0" y1="40" x2="40" y2="40" class="ed-stroke c4" stroke-width="1" opacity=".4"/>
+    <line x1="15" y1="70" x2="15" y2="15" class="ed-stroke c4" stroke-width="1" opacity=".4"/>
+  </g>
+
+  <!-- Lâmpada/ideia (right) -->
+  <g transform="translate(1340,200)" opacity=".08">
+    <circle cx="24" cy="22" r="18" class="ed-stroke c3" stroke-width="2"/>
+    <path d="M16,35 Q16,44 24,46 Q32,44 32,35" class="ed-stroke c3" stroke-width="1.8"/>
+    <line x1="18" y1="48" x2="30" y2="48" class="ed-stroke c3" stroke-width="1.8"/>
+    <line x1="19" y1="52" x2="29" y2="52" class="ed-stroke c3" stroke-width="1.8"/>
+    <line x1="24" y1="4" x2="24" y2="10" class="ed-stroke c3" stroke-width="1.5"/>
+    <line x1="8" y1="8" x2="12" y2="12" class="ed-stroke c3" stroke-width="1.5"/>
+    <line x1="40" y1="8" x2="36" y2="12" class="ed-stroke c3" stroke-width="1.5"/>
+    <line x1="2" y1="22" x2="8" y2="22" class="ed-stroke c3" stroke-width="1.5"/>
+    <line x1="40" y1="22" x2="46" y2="22" class="ed-stroke c3" stroke-width="1.5"/>
+  </g>
+
+  <!-- Globo terrestre (left) -->
+  <g transform="translate(30,350)" opacity=".06">
+    <circle cx="40" cy="40" r="38" class="ed-stroke c1" stroke-width="2"/>
+    <ellipse cx="40" cy="40" rx="20" ry="38" class="ed-stroke c1" stroke-width="1.5"/>
+    <line x1="2" y1="40" x2="78" y2="40" class="ed-stroke c1" stroke-width="1.5"/>
+    <ellipse cx="40" cy="40" rx="38" ry="14" class="ed-stroke c1" stroke-width="1.2"/>
+    <line x1="40" y1="2" x2="40" y2="78" class="ed-stroke c1" stroke-width="1.5"/>
+    <!-- base -->
+    <line x1="25" y1="82" x2="55" y2="82" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="40" y1="78" x2="40" y2="82" class="ed-stroke c1" stroke-width="2"/>
+  </g>
+
+  <!-- Alvo MIRA (center-left) -->
+  <g transform="translate(50,620)" opacity=".07">
+    <circle cx="35" cy="35" r="33" class="ed-stroke c1" stroke-width="2"/>
+    <circle cx="35" cy="35" r="22" class="ed-stroke c1" stroke-width="1.8"/>
+    <circle cx="35" cy="35" r="11" class="ed-stroke c1" stroke-width="1.5"/>
+    <circle cx="35" cy="35" r="4" class="f1"/>
+    <line x1="35" y1="0" x2="35" y2="12" class="ed-stroke c1" stroke-width="1.8"/>
+    <line x1="35" y1="58" x2="35" y2="70" class="ed-stroke c1" stroke-width="1.8"/>
+    <line x1="0" y1="35" x2="12" y2="35" class="ed-stroke c1" stroke-width="1.8"/>
+    <line x1="58" y1="35" x2="70" y2="35" class="ed-stroke c1" stroke-width="1.8"/>
+  </g>
+
+  <!-- Calculadora (bottom-left) -->
+  <g transform="translate(60,830) rotate(-5)" opacity=".07">
+    <rect x="0" y="0" width="50" height="68" rx="6" class="ed-stroke c1" stroke-width="2"/>
+    <rect x="5" y="5" width="40" height="16" rx="3" class="ed-stroke c4" stroke-width="1.5"/>
+    <circle cx="14" cy="32" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+    <circle cx="25" cy="32" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+    <circle cx="36" cy="32" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+    <circle cx="14" cy="44" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+    <circle cx="25" cy="44" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+    <circle cx="36" cy="44" r="4" class="ed-stroke c3" stroke-width="1.5"/>
+    <circle cx="14" cy="56" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+    <circle cx="25" cy="56" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+    <circle cx="36" cy="56" r="4" class="ed-stroke c1" stroke-width="1.3"/>
+  </g>
+
+  <!-- Compasso (right-center) -->
+  <g transform="translate(1320,420) rotate(-10)" opacity=".07">
+    <line x1="30" y1="0" x2="10" y2="70" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="30" y1="0" x2="50" y2="70" class="ed-stroke c1" stroke-width="2"/>
+    <circle cx="30" cy="3" r="5" class="ed-stroke c3" stroke-width="1.8"/>
+    <path d="M18,40 Q30,34 42,40" class="ed-stroke c1" stroke-width="1.5"/>
+    <circle cx="10" cy="70" r="2" class="f1"/>
+  </g>
+
+  <!-- Estrela (achievement, center) -->
+  <g transform="translate(720,870)" opacity=".07">
+    <polygon points="25,0 31,17 50,17 35,28 40,46 25,35 10,46 15,28 0,17 19,17" class="ed-stroke c3" stroke-width="2"/>
+  </g>
+
+  <!-- Prancheta/clipboard (bottom-right) -->
+  <g transform="translate(1280,720) rotate(5)" opacity=".07">
+    <rect x="0" y="10" width="55" height="70" rx="5" class="ed-stroke c1" stroke-width="2"/>
+    <rect x="17" y="4" width="20" height="12" rx="6" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="10" y1="30" x2="45" y2="30" class="ed-stroke c4" stroke-width="1.5"/>
+    <line x1="10" y1="40" x2="40" y2="40" class="ed-stroke c4" stroke-width="1.2" opacity=".5"/>
+    <line x1="10" y1="48" x2="42" y2="48" class="ed-stroke c4" stroke-width="1.2" opacity=".5"/>
+    <line x1="10" y1="56" x2="38" y2="56" class="ed-stroke c4" stroke-width="1.2" opacity=".5"/>
+    <path d="M10,66 L16,72 L28,60" class="ed-stroke c2" stroke-width="2"/>
+  </g>
+
+  <!-- Gráfico de barras (bottom-center) -->
+  <g transform="translate(500,860)" opacity=".06">
+    <rect x="0" y="40" width="16" height="35" rx="3" class="ed-stroke c1" stroke-width="1.8"/>
+    <rect x="22" y="20" width="16" height="55" rx="3" class="ed-stroke c2" stroke-width="1.8"/>
+    <rect x="44" y="30" width="16" height="45" rx="3" class="ed-stroke c3" stroke-width="1.8"/>
+    <rect x="66" y="8" width="16" height="67" rx="3" class="ed-stroke c4" stroke-width="1.8"/>
+    <line x1="0" y1="75" x2="95" y2="75" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="0" y1="75" x2="0" y2="0" class="ed-stroke c1" stroke-width="2"/>
+  </g>
+
+  <!-- Régua (right side) -->
+  <g transform="translate(1360,580) rotate(80)" opacity=".06">
+    <rect x="0" y="0" width="120" height="22" rx="3" class="ed-stroke c4" stroke-width="1.8"/>
+    <line x1="15" y1="0" x2="15" y2="8" class="ed-stroke c4" stroke-width="1"/>
+    <line x1="30" y1="0" x2="30" y2="12" class="ed-stroke c4" stroke-width="1.3"/>
+    <line x1="45" y1="0" x2="45" y2="8" class="ed-stroke c4" stroke-width="1"/>
+    <line x1="60" y1="0" x2="60" y2="12" class="ed-stroke c4" stroke-width="1.3"/>
+    <line x1="75" y1="0" x2="75" y2="8" class="ed-stroke c4" stroke-width="1"/>
+    <line x1="90" y1="0" x2="90" y2="12" class="ed-stroke c4" stroke-width="1.3"/>
+    <line x1="105" y1="0" x2="105" y2="8" class="ed-stroke c4" stroke-width="1"/>
+  </g>
+
+  <!-- Maçã do professor (right-top) -->
+  <g transform="translate(1200,90)" opacity=".07">
+    <path d="M25,15 Q5,15 5,35 Q5,55 25,60 Q45,55 45,35 Q45,15 25,15" class="ed-stroke c2" stroke-width="2"/>
+    <path d="M25,15 Q25,5 30,2" class="ed-stroke c2" stroke-width="1.8"/>
+    <path d="M28,8 Q35,10 35,6" class="ed-stroke c2" stroke-width="1.3"/>
+  </g>
+
+  <!-- Átomo (science, far right) -->
+  <g transform="translate(1330,850)" opacity=".06">
+    <ellipse cx="30" cy="30" rx="28" ry="11" class="ed-stroke c4" stroke-width="1.5"/>
+    <ellipse cx="30" cy="30" rx="28" ry="11" class="ed-stroke c4" stroke-width="1.5" transform="rotate(60 30 30)"/>
+    <ellipse cx="30" cy="30" rx="28" ry="11" class="ed-stroke c4" stroke-width="1.5" transform="rotate(120 30 30)"/>
+    <circle cx="30" cy="30" r="5" class="f4"/>
+  </g>
+
+  <!-- Notas musicais (left-bottom) -->
+  <g transform="translate(220,880)" opacity=".06">
+    <path d="M8,28 L8,8 L28,4 L28,24" class="ed-stroke c2" stroke-width="2"/>
+    <circle cx="6" cy="30" r="5" class="ed-stroke c2" stroke-width="1.8"/>
+    <circle cx="26" cy="26" r="5" class="ed-stroke c2" stroke-width="1.8"/>
+  </g>
+
+  <!-- Lupa (center-right) -->
+  <g transform="translate(1100,870)" opacity=".06">
+    <circle cx="22" cy="22" r="18" class="ed-stroke c1" stroke-width="2"/>
+    <line x1="35" y1="35" x2="48" y2="48" class="ed-stroke c1" stroke-width="3"/>
+  </g>
+
+  <!-- ABC letras (top area) -->
+  <g opacity=".04">
+    <text x="340" y="120" font-family="'Plus Jakarta Sans',sans-serif" font-size="32" font-weight="800" class="f1">A</text>
+    <text x="370" y="120" font-family="'Plus Jakarta Sans',sans-serif" font-size="32" font-weight="800" class="f4">B</text>
+    <text x="400" y="120" font-family="'Plus Jakarta Sans',sans-serif" font-size="32" font-weight="800" class="f2">C</text>
+  </g>
+
+  <!-- Fórmulas matemáticas sutis -->
+  <g opacity=".04">
+    <text x="780" y="180" font-family="Georgia,serif" font-size="18" class="f1" transform="rotate(-4,780,180)">a² + b² = c²</text>
+    <text x="150" y="520" font-family="Georgia,serif" font-size="16" class="f4" transform="rotate(6,150,520)">f(x) = ax + b</text>
+    <text x="1050" y="480" font-family="Georgia,serif" font-size="15" class="f1" transform="rotate(-3,1050,480)">2x + 3 = 7</text>
+  </g>
+
+  <!-- Pontos decorativos espalhados -->
+  <g class="f1" opacity=".04">
+    <circle cx="200" cy="300" r="2.5"/><circle cx="220" cy="320" r="1.8"/>
+    <circle cx="900" cy="140" r="2.5"/><circle cx="920" cy="160" r="1.8"/>
+    <circle cx="650" cy="750" r="2.5"/><circle cx="670" cy="770" r="1.8"/>
+    <circle cx="1100" cy="300" r="2"/><circle cx="1120" cy="280" r="2.5"/>
+    <circle cx="400" cy="700" r="2"/><circle cx="420" cy="720" r="1.8"/>
+    <circle cx="800" cy="400" r="2.5"/><circle cx="820" cy="420" r="1.8"/>
+  </g>
+</svg></div>
+<div style="background:var(--pri);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;box-shadow:0 2px 8px rgba(15,36,97,.15)">
+  <a href="index.html" style="display:flex;align-items:center;text-decoration:none"><svg width="80" height="22" viewBox="0 0 110 30" fill="none"><path d="M4 9C4 9 4 22 4 22C6 21 13 20 15 22L15 9C13 7 5 8 4 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><path d="M26 9C26 9 26 22 26 22C24 21 17 20 15 22L15 9C17 7 25 8 26 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><line x1="15" y1="9" x2="15" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><path d="M15 3L16 5.8H19L16.5 7.4L17.5 10.2L15 8.6L12.5 10.2L13.5 7.4L11 5.8H14Z" fill="rgba(255,255,255,0.9)"/><text x="33" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="white" letter-spacing="-0.5">MIRA</text></svg></a>
+  <a href="login.html" id="prof-link" style="font-size:.78rem;color:rgba(255,255,255,.85);text-decoration:none;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 14px;font-weight:600;display:inline-flex;align-items:center;gap:5px"><svg width="60" height="17" viewBox="0 0 110 30" fill="none"><path d="M4 9C4 9 4 22 4 22C6 21 13 20 15 22L15 9C13 7 5 8 4 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><path d="M26 9C26 9 26 22 26 22C24 21 17 20 15 22L15 9C17 7 25 8 26 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><line x1="15" y1="9" x2="15" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><path d="M15 3L16 5.8H19L16.5 7.4L17.5 10.2L15 8.6L12.5 10.2L13.5 7.4L11 5.8H14Z" fill="rgba(255,255,255,0.9)"/><text x="33" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="white" letter-spacing="-0.5">MIRA</text></svg>Área do Professor</a>
+</div>
+<div class="app" id="app" data-theme="6">
+<!-- SVG ICONS (hidden) -->
+<svg style="display:none">
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 19.5V4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 4L12 14.01l-3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-dollar" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-trending" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A7 7 0 1012 19h0" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<!-- ═══ NAV ═══ -->
+<div class="mira-nav">
+  <a class="mira-nav-btn" href="index.html">
+    <svg width="60" height="17" viewBox="0 0 110 30" fill="none"><path d="M4 9C4 9 4 22 4 22C6 21 13 20 15 22L15 9C13 7 5 8 4 9Z" stroke="var(--pri)" stroke-width="1.4" stroke-linejoin="round" fill="var(--pri-bg)"/><path d="M26 9C26 9 26 22 26 22C24 21 17 20 15 22L15 9C17 7 25 8 26 9Z" stroke="var(--pri)" stroke-width="1.4" stroke-linejoin="round" fill="var(--pri-bg)"/><line x1="15" y1="9" x2="15" y2="22" stroke="var(--pri)" stroke-width="1" opacity=".4"/><path d="M15 3L16 5.8H19L16.5 7.4L17.5 10.2L15 8.6L12.5 10.2L13.5 7.4L11 5.8H14Z" fill="var(--gold,#E8B800)"/><text x="33" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="var(--pri)" letter-spacing="-0.5">MIRA</text></svg>
+    <span>Voltar ao portal</span>
+  </a>
+
+  <button id="dark-toggle" onclick="window.toggleDark()" title="Alternar tema claro/escuro"
+  style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.8);padding:6px;border-radius:6px;display:flex;align-items:center;transition:background .2s"
+  onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='none'">
+  <svg id="dark-icon-moon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  <svg id="dark-icon-sun" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div class="view active" id="v-home">
+  <div class="hero">
+    <div class="hero-badge"><svg class="icon icon-sm"><use href="#i-book"/></svg> Manual do Professor</div>
+    <h1 id="disc-title"><em>Carregando...</em></h1>
+    <p id="disc-sub"></p>
+  </div>
+  <div class="grades" id="grades-container"></div>
+  <div class="refs-card" id="refs-card" style="display:none">
+    <h3><svg class="icon"><use href="#i-book"/></svg> Referências Bibliográficas</h3>
+    <p id="refs-text"></p>
+  </div>
+</div>
+
+<!-- ═══ GRADE VIEW ═══ -->
+<div class="view" id="v-grade">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <img class="mira-logo-img" src="" alt="Logo EMEB"
+           style="display:none;width:36px;height:36px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.15);padding:2px">
+    </div>
+    
+    <button class="back-btn" onclick="goHome()"><svg class="icon icon-sm"><use href="#i-back"/></svg> Início</button>
+    <span class="grade-badge" id="gBadge"></span>
+  </div>
+  <div class="page-title" id="gTitle"></div>
+  <div class="page-sub" id="gSub"></div>
+  <div class="bim-tabs" id="bTabs"></div>
+  <div id="lList"></div>
+</div>
+
+<!-- ═══ LESSON VIEW ═══ -->
+<div class="view" id="v-lesson">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <img class="mira-logo-img" src="" alt="Logo EMEB"
+           style="display:none;width:36px;height:36px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.15);padding:2px">
+    </div>
+    <button class="back-btn" id="bkBtn"><svg class="icon icon-sm"><use href="#i-back"/></svg> Voltar às aulas</button>
+  </div>
+  <div class="ld" id="lDetail"></div>
+</div>
+</div>
+
+<footer style="border-top:1px solid var(--border);padding:18px 20px;text-align:center;max-width:1140px;margin:0 auto">
+  <p style="font-size:.73rem;color:var(--text3)">&copy; <span id="footer-year"></span> Ismael Marques &middot; MIRA &mdash; Manual Iraci de Recursos para a Aprendizagem</p>
+</footer>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,collection,getDocs,query,orderBy,doc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyD_IoIlMiPvDRoJJWM2_LMg6cZQqcB7tao",authDomain:"mira-b17cb.firebaseapp.com",projectId:"mira-b17cb",storageBucket:"mira-b17cb.firebasestorage.app",messagingSenderId:"989601201413",appId:"1:989601201413:web:e81c9f2455c908a5594b6c"};
+const app=initializeApp(cfg);
+const db=getFirestore(app);
+let D={},cG=null,cB=0,discId=null,discMeta=null;
+
+// Get discipline ID from URL
+const params=new URLSearchParams(window.location.search);
+discId=params.get('disc');
+
+function showLoading(msg){document.getElementById('v-home').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px"><div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite"></div><p style="color:var(--text3);font-size:.9rem">${msg}</p></div>`;}
+function showError(msg){document.getElementById('v-home').innerHTML=`<div style="text-align:center;padding:60px 20px"><svg viewBox="0 0 24 24" style="width:48px;height:48px;color:var(--orange);margin-bottom:12px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p style="color:var(--text3);font-size:.9rem;max-width:400px;margin:0 auto;line-height:1.7">${msg}</p><a href="index.html" style="display:inline-block;margin-top:20px;padding:10px 24px;background:var(--pri);color:#fff;border:none;border-radius:8px;font-weight:700;text-decoration:none">Voltar ao portal</a></div>`;}
+
+async function loadData(){
+  if(!discId){showError('Nenhuma disciplina informada na URL. Volte ao portal e selecione uma disciplina.');return;}
+  showLoading('Carregando manual...');
+  try{
+    // Fetch discipline metadata
+    const discSnap=await getDoc(doc(db,'disciplinas',discId));
+    if(!discSnap.exists()){showError('Disciplina não encontrada. Verifique o link ou volte ao portal.');return;}
+    discMeta=discSnap.data();
+    document.title=`MIRA — ${discMeta.nome}`;
+
+    // Fetch bimesters
+    const bimsSnap=await getDocs(collection(db,'disciplinas',discId,'bimestres'));
+    if(bimsSnap.empty){showError('Nenhum conteúdo cadastrado para esta disciplina ainda.');return;}
+    const gradeMap={};
+    // Fetch all aulas in parallel (one Promise per bimestre)
+    await Promise.all(bimsSnap.docs.map(async bimDoc=>{
+      const b=bimDoc.data(),g=b.serie;
+      if(!gradeMap[g])gradeMap[g]={label:b.serieLabel||`${g}º Ano`,color:String(g),bimesters:[]};
+      const aulasSnap=await getDocs(collection(db,'disciplinas',discId,'bimestres',bimDoc.id,'aulas'));
+      // Sort: normal → prova → recup
+      const sorted=[...aulasSnap.docs].sort((a,b)=>{
+        const o=t=>t==='recup'?2:t==='prova'?1:0;
+        return o(a.data().tipo)-o(b.data().tipo)||(a.data().ordem||0)-(b.data().ordem||0);
+      });
+      gradeMap[g].bimesters.push({
+        id:bimDoc.id,name:b.nome,tema:b.tema,
+        lessons:sorted.map(a=>{
+          const d=a.data();
+          return{
+            t:d.titulo||'',obj:d.objetivo||'',
+            conteudo:d.conteudoPublicado!==undefined?d.conteudoPublicado:(d.conteudo||''),
+            passos:d.passosPublicados!==undefined?d.passosPublicados:(d.passos||[]),
+            atividades:d.atividadesPublicadas!==undefined?d.atividadesPublicadas:(d.atividades||[]),
+            materiais:d.materiaisPublicados!==undefined?d.materiaisPublicados:(d.materiais||[]),
+            referencias:d.referenciasPublicadas!==undefined?d.referenciasPublicadas:(d.referencias||''),
+            avaliacao:d.avaliacaoPublicada!==undefined?d.avaliacaoPublicada:(d.avaliacao||''),
+            hab:d.habPublicadas!==undefined?d.habPublicadas:(d.hab||''),
+            tipo:d.tipo||'normal',
+            pdfs:(d.pdfs||[]).filter(p=>p.status==='publicado'||!p.status),
+            firestoreId:a.id,bimId:bimDoc.id
+          };
+        })
+      });
+    }));
+    D=gradeMap;
+    buildHome();
+    document.getElementById('footer-year').textContent=new Date().getFullYear();
+  }catch(e){console.error(e);showError('Erro ao carregar: '+e.message);}
+}
+
+function buildHome(){
+  const grades=Object.keys(D).map(Number).sort();
+  const totalAulas=grades.reduce((sum,g)=>sum+D[g].bimesters.reduce((s,b)=>s+b.lessons.length,0),0);
+  const totalBims=grades.reduce((sum,g)=>sum+D[g].bimesters.length,0);
+
+  const cardsHtml=grades.map(g=>{
+    const temas=D[g].bimesters.map(b=>b.tema).filter(Boolean).join(' · ');
+    const aulaCount=D[g].bimesters.reduce((s,b)=>s+b.lessons.length,0);
+    return`<div class="g-card" data-g="${g}" onclick="window.openGrade(${g})"><div class="g-stripe"></div><div class="g-num">${g}º</div><div class="g-title">${g}º Ano</div><div class="g-sub">${temas||aulaCount+' aulas'}</div></div>`;
+  }).join('');
+
+  document.getElementById('v-home').innerHTML=`
+    <div class="hero">
+      <div class="hero-badge"><svg class="icon icon-sm"><use href="#i-book"/></svg> Manual do Professor</div>
+      <h1><em>${discMeta.nome}</em></h1>
+      <p>${discMeta.series||'Ensino Fundamental II'} · ${totalAulas} aulas em ${totalBims} bimestres · Aulas de 50 minutos</p>
+    </div>
+    <div class="grades">${cardsHtml}</div>
+    <div class="refs-card">
+      <h3><svg class="icon"><use href="#i-book"/></svg> Referências Bibliográficas</h3>
+      <p><strong>${discMeta.nome}</strong> — ${discMeta.descricao||'Manual do Professor'}.<br><br><strong>Documentos:</strong> BNCC (2017) · ENEF/Plano Diretor (2011)<br><br><strong>Recursos:</strong> vidaedinheiro.gov.br · bcb.gov.br/cidadaniafinanceira</p>
+    </div>`;
+  show('v-home');
+}
+
+function setTheme(g){document.getElementById('app').setAttribute('data-theme',g);}
+function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+
+window.goHome=function(){show('v-home');};
+
+window.openGrade=function(g){
+  cG=g;cB=0;
+  const d=D[g];if(!d)return;
+  setTheme(d.color);
+  document.getElementById('gBadge').textContent=d.label;
+  document.getElementById('gTitle').textContent=d.label+' — '+discMeta.nome;
+  document.getElementById('gSub').textContent='Manual do Professor · '+d.bimesters.reduce((s,b)=>s+b.lessons.length,0)+' aulas · 50 minutos cada';
+  renderTabs();renderList();show('v-grade');
+};
+
+function renderTabs(){
+  document.getElementById('bTabs').innerHTML=D[cG].bimesters.map((b,i)=>`<button class="bim-tab${i===cB?' active':''}" onclick="window.switchBim(${i})">${b.name}</button>`).join('');
+}
+window.switchBim=function(i){cB=i;renderTabs();renderList();};
+
+function renderList(){
+  const bim=D[cG].bimesters[cB];
+  let h=`<div style="text-align:center;margin-bottom:16px"><span style="font-size:.82rem;color:var(--text3);background:var(--pri-bg);padding:6px 16px;border-radius:20px;font-weight:600">${bim.tema||''}</span></div><div class="l-list">`;
+  bim.lessons.forEach((l,i)=>{
+    const isP=l.tipo==='prova',isR=l.tipo==='recup';
+    const cls=isP?'prova':isR?'recup':'normal';
+    const num=isP?'<svg class="icon icon-sm"><use href="#i-file"/></svg>':isR?'<svg class="icon icon-sm"><use href="#i-award"/></svg>':''+(i+1);
+    const hasPdf=l.pdfs&&l.pdfs.length?`<span style="font-size:.7rem;color:var(--green);font-weight:700;margin-left:4px"><svg viewBox="0 0 24 24" style="width:12px;height:12px;vertical-align:-1px;stroke:var(--green);fill:none;stroke-width:2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>${l.pdfs.length}</span>`:'';
+    h+=`<div class="l-item" onclick="window.openL(${cG},${cB},${i})"><div class="l-badge ${cls}">${num}</div><div class="l-content"><div class="l-title">${l.t}${hasPdf}</div><div class="l-desc">${l.obj}</div><div class="l-tags"><span class="l-tag time">50 min</span>${isP?'<span class="l-tag" style="background:#FEE2E2;color:#DC2626">Avaliação</span>':isR?'<span class="l-tag" style="background:#DCFCE7;color:#16A34A">Recuperação</span>':''}</div></div><div class="l-arrow"><svg class="icon icon-sm"><use href="#i-right"/></svg></div></div>`;
+  });
+  h+='</div>';document.getElementById('lList').innerHTML=h;
+}
+
+window.openL=function(g,bi,li){
+  const bim=D[g].bimesters[bi],l=bim.lessons[li],tot=bim.lessons.length;
+  let h=`<div class="ld-hero"><div class="ld-label"><svg class="icon icon-sm"><use href="#i-book"/></svg> Aula ${li+1} de ${tot} · ${D[g].label} · ${bim.name}</div><h2>${l.t}</h2><div class="obj"><strong>Objetivo:</strong> ${l.obj}</div></div>`;
+  if(l.conteudo){h+=`<div class="ld-block"><h3><span class="h-icon content"><svg class="icon icon-sm"><use href="#i-bulb"/></svg></span>Conteúdo para o Professor</h3><div class="ld-text">${l.conteudo}</div></div>`;}
+  if(l.passos&&l.passos.length){h+=`<div class="ld-block"><h3><span class="h-icon steps"><svg class="icon icon-sm"><use href="#i-clock"/></svg></span>Desenvolvimento da Aula (50 min)</h3><ol class="step-list">`;l.passos.forEach(p=>h+=`<li>${p}</li>`);h+=`</ol></div>`;}
+  if(l.atividades&&l.atividades.length){
+    h+=`<div class="ld-block"><h3><span class="h-icon activity"><svg class="icon icon-sm"><use href="#i-edit"/></svg></span>Atividades</h3>`;
+    l.atividades.forEach(a=>{if(typeof a==='string'){h+=`<div class="act-card"><p>${a}</p></div>`;}else{h+=`<div class="act-card"><h4><svg class="icon icon-sm"><use href="#i-star"/></svg> ${a.titulo||''}</h4><p>${a.desc||''}</p>${a.instrucoes&&a.instrucoes.length?'<ul class="act-steps">'+a.instrucoes.map(i=>`<li>${i}</li>`).join('')+'</ul>':''}</div>`;}});
+    h+=`</div>`;
+  }
+  if(l.materiais&&l.materiais.length){
+    const mats=l.materiais.filter(m=>{const txt=typeof m==='string'?m:(m.texto||m);return!txt.startsWith('<button');});
+    if(mats.length){h+=`<div class="ld-block"><h3><span class="h-icon material"><svg class="icon icon-sm"><use href="#i-box"/></svg></span>Materiais da Aula</h3><div class="mat-list">`;mats.forEach(m=>{const txt=typeof m==='string'?m:(m.texto||m);h+=`<div class="mat-item"><div class="mat-dot"></div>${txt}</div>`;});h+=`</div></div>`;}
+  }
+  if(l.pdfs&&l.pdfs.length){
+    h+=`<div class="ld-block"><h3><span class="h-icon eval"><svg class="icon icon-sm"><use href="#i-file"/></svg></span>Atividades para Download</h3><div class="mat-list">`;
+    l.pdfs.forEach(pdf=>{h+=`<div class="mat-item" style="background:var(--pri-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px"><svg viewBox="0 0 24 24" style="width:28px;height:28px;flex-shrink:0;stroke:var(--pri);fill:none;stroke-width:2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.85rem;color:var(--text)">${pdf.nome}</div><div style="font-size:.72rem;color:var(--text3)">${pdf.tamanho||''}</div></div><a href="${pdf.url}" target="_blank" download style="background:var(--pri);color:#fff;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Baixar</a></div>`;});
+    h+=`</div></div>`;
+  }
+  if(l.avaliacao){h+=`<div class="ld-block"><h3><span class="h-icon eval"><svg class="icon icon-sm"><use href="#i-check"/></svg></span>Avaliação</h3><p style="font-size:.88rem;color:var(--text2);line-height:1.7">${l.avaliacao}</p></div>`;}
+  if(l.hab){h+=`<div class="ld-block"><h3><span class="h-icon skills"><svg class="icon icon-sm"><use href="#i-target"/></svg></span>Habilidades BNCC/EF</h3><div class="hab-box" onclick="this.classList.toggle('open')"><span style="color:var(--pri-t);font-weight:600;font-size:.88rem">Clique para expandir</span><div class="hab-codes"><strong>Códigos:</strong> ${l.hab}</div></div></div>`;}
+  if(l.referencias){h+=`<div class="refs-card" style="margin-top:8px"><h3><svg class="icon"><use href="#i-book"/></svg> Referências</h3><div style="font-size:.85rem;color:var(--text2);line-height:1.8">${l.referencias}</div></div>`;}
+  h+=`<div class="nav-row">`;
+  if(li>0)h+=`<button class="nav-btn" onclick="window.openL(${g},${bi},${li-1})"><div class="nd"><svg class="icon icon-sm" style="display:inline"><use href="#i-back"/></svg> Anterior</div><div class="nt">${bim.lessons[li-1].t}</div></button>`;else h+=`<div></div>`;
+  if(li<tot-1)h+=`<button class="nav-btn" onclick="window.openL(${g},${bi},${li+1})"><div class="nd">Próxima <svg class="icon icon-sm" style="display:inline;transform:rotate(180deg)"><use href="#i-back"/></svg></div><div class="nt">${bim.lessons[li+1].t}</div></button>`;
+  h+=`</div>`;
+  // ── Barra de progresso do bimestre ──────────────────────────────────
+  const doneKey='mira_done_'+g+'_'+bi;
+  const doneList=JSON.parse(localStorage.getItem(doneKey)||'[]');
+  const isDone=doneList.includes(li);
+  const pct=Math.round((doneList.length/tot)*100);
+  const progressHTML=`
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">${doneList.length} de ${tot} aulas concluídas neste bimestre</div>`;
+
+  // ── Botões de ação ──────────────────────────────────────────────────────
+  const actionsHTML=`<div class="lesson-actions">
+    <button class="btn-download" onclick="printLesson()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Imprimir / Salvar PDF
+    </button>
+    <button id="btn-done-aula" class="btn-done${isDone?' marcada':''}" onclick="toggleDone(${g},${bi},${li},${tot})">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      ${isDone?'Aula concluída':'Marcar como dada'}
+    </button>
+  </div>
+  ${progressHTML}`;
+
+  document.getElementById('lDetail').innerHTML=actionsHTML+h;
+  document.getElementById('bkBtn').onclick=()=>{cB=bi;window.openGrade(g);};
+  show('v-lesson');
+};
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('footer-year').textContent=new Date().getFullYear();
+  loadData();
+});
+// ── LOGO FROM FIRESTORE ────────────────────────────────────────────────────
+async function loadLogo() {
+  try {
+    const cfgSnap = await getDoc(doc(db, 'configuracoes', 'escola'));
+    if (cfgSnap.exists() && cfgSnap.data().logoURL) {
+      const url = cfgSnap.data().logoURL;
+      document.querySelectorAll('.mira-logo-img').forEach(el => {
+        el.src = url; el.style.display = 'inline-block';
+      });
+    }
+  } catch(e) { console.warn('Logo:', e.message); }
+}
+
+// ── IMPRIMIR PLANO DE AULA ────────────────────────────────────────────────
+window.printLesson = function() {
+  window.print();
+};
+
+// ── MARCAR AULA COMO DADA ─────────────────────────────────────────────────
+window.toggleDone = function(g, bi, li, tot) {
+  const key = 'mira_done_' + g + '_' + bi;
+  let list = JSON.parse(localStorage.getItem(key) || '[]');
+  const idx = list.indexOf(li);
+  const btn = document.getElementById('btn-done-aula');
+  if (idx === -1) {
+    list.push(li);
+    if (btn) {
+      btn.classList.add('marcada');
+      btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Aula concluída';
+    }
+  } else {
+    list.splice(idx, 1);
+    if (btn) {
+      btn.classList.remove('marcada');
+      btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Marcar como dada';
+    }
+  }
+  localStorage.setItem(key, JSON.stringify(list));
+  const pct = Math.round((list.length / tot) * 100);
+  const fill = document.querySelector('.progress-bar-fill');
+  const label = document.querySelector('.progress-label');
+  if (fill) fill.style.width = pct + '%';
+  if (label) label.textContent = list.length + ' de ' + tot + ' aulas concluídas neste bimestre';
+};
+
+// Load logo + data
+loadLogo();
+
+</script>
+</body>
+</html>
