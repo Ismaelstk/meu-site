@@ -439,6 +439,14 @@ const auth=getAuth(app);
 const db=getFirestore(app);
 const storage=getStorage(app);
 
+let currentUser=null, userRole=null, currentDiscId=null, currentBimId=null, currentAulaId=null, currentAulaData=null, currentAulaIdx=0;
+
+// ── AVATAR HELPERS ───────────────────────────────────────────────────────────
+const avC=['#1A3A8F','#2E9E6B','#E8B800','#2E5FD4','#C0392B','#8B5CF6','#EC4899','#0891B2'];
+function getAC(n){let h=0;for(let i=0;i<(n||'').length;i++)h=n.charCodeAt(i)+((h<<5)-h);return avC[Math.abs(h)%avC.length];}
+function getIn(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function rav(u,s){const c=s==='sm'?'-sm':s==='lg'?'-lg':'';if(u.fotoURL)return`<img class="avatar${c}" src="${u.fotoURL}" alt="">`;return`<div class="avatar-i${c}" style="background:${getAC(u.nome)}">${getIn(u.nome)}</div>`;}
+
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth,async u=>{
