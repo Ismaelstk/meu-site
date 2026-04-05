@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>(function(){if(localStorage.getItem('mira-theme')==='dark')document.documentElement.classList.add('dark');})()</script>
+<script>
+window.toggleDark=function(){
+  var isDark=document.documentElement.classList.toggle('dark');
+  localStorage.setItem('mira-theme',isDark?'dark':'light');
+  var moon=document.getElementById('dark-icon-moon');
+  var sun=document.getElementById('dark-icon-sun');
+  if(moon)moon.style.display=isDark?'none':'';
+  if(sun)sun.style.display=isDark?'':'none';
+};
+document.addEventListener('DOMContentLoaded',function(){
+  var isDark=document.documentElement.classList.contains('dark');
+  var moon=document.getElementById('dark-icon-moon');
+  var sun=document.getElementById('dark-icon-sun');
+  if(moon)moon.style.display=isDark?'none':'';
+  if(sun)sun.style.display=isDark?'':'none';
+});
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA — Horários</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F8F7F2;--card:#FFFFFF;--card2:#F0EEE8;--border:#DDD9CF;
+  --text:#0F2461;--text2:#1A3A8F;--text3:#6A7F9A;
+  --shadow:0 1px 3px rgba(15,36,97,.07),0 4px 12px rgba(15,36,97,.05);
+  --shadow2:0 2px 8px rgba(15,36,97,.10),0 8px 24px rgba(15,36,97,.08);
+  --r:14px;--rs:10px;
+  --pri:#1A3A8F;--pri-bg:#EEF0FB;--pri-t:#0F2461;
+  --gold:#E8B800;--gold-bg:#FFFBE6;--gold-t:#9A7800;
+  --green:#2E9E6B;--green-bg:#E8F5EF;--green-t:#1A6B47;
+  --red:#C0392B;--red-bg:#FEECEC;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.65}
+.app{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+
+/* TOPBAR */
+.topbar{background:var(--pri);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;box-shadow:0 2px 8px rgba(15,36,97,.15)}
+.topbar a{text-decoration:none;display:flex;align-items:center}
+.nav-links{display:flex;align-items:center;gap:14px}
+.nav-links a{font-size:.78rem;color:rgba(255,255,255,.8);text-decoration:none;font-weight:500}.nav-links a:hover{color:#fff}
+
+/* HERO */
+.hero{text-align:center;padding:48px 20px 24px}
+.hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.3px}
+.hero p{color:var(--text3);font-size:.9rem;margin-top:6px}
+
+/* TABS */
+.tabs{display:flex;justify-content:center;gap:6px;margin-bottom:24px}
+.tab{padding:10px 28px;border-radius:40px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--card);color:var(--text3);transition:all .2s}
+.tab:hover{border-color:var(--pri);color:var(--pri)}
+.tab.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+
+/* TURNO TABS */
+.turno-tabs{display:flex;justify-content:center;gap:6px;margin-bottom:20px}
+.turno-tab{padding:7px 20px;border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text3);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.turno-tab:hover{border-color:var(--pri)}
+.turno-tab.active{background:var(--pri-bg);color:var(--pri);border-color:var(--pri)}
+
+/* SEARCH */
+.search-wrap{max-width:480px;margin:0 auto 24px}
+.search-box{display:flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--border);border-radius:40px;padding:10px 18px;transition:border-color .2s;box-shadow:var(--shadow)}
+.search-box:focus-within{border-color:var(--pri)}
+.search-box svg{color:var(--text3);flex-shrink:0;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+.search-box input{border:none;outline:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text);flex:1}
+.search-box input::placeholder{color:var(--text3)}
+
+/* GRID DE CARDS */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:32px}
+.item-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);padding:14px 16px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.item-card:hover{transform:translateY(-2px);box-shadow:var(--shadow2);border-color:var(--pri)}
+.item-card.active{border-color:var(--pri);background:var(--pri-bg)}
+.item-card .ic-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700}
+.item-card .ic-meta{font-size:.72rem;color:var(--text3);margin-top:2px}
+
+/* TABELA HORÁRIO */
+.schedule-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.schedule-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.sh-left{display:flex;align-items:center;gap:14px}
+.sh-icon{width:48px;height:48px;border-radius:12px;background:var(--pri-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sh-icon svg{width:24px;height:24px;stroke:var(--pri);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sh-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:800}
+.sh-sub{font-size:.78rem;color:var(--text3);margin-top:1px}
+.btn-pdf{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:var(--pri);color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-pdf:hover{background:var(--pri-t)}
+
+/* TABELA */
+.tbl-scroll{overflow-x:auto;padding:0 12px 12px}
+table{width:100%;border-collapse:separate;border-spacing:4px;font-size:.82rem;margin:12px 0 16px}
+table th{background:var(--pri);color:#fff;padding:12px 10px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-radius:8px;min-width:110px}
+table th:first-child{min-width:80px;background:var(--pri-t)}
+table td{padding:10px 8px;text-align:center;border-radius:8px;vertical-align:middle;min-height:58px;transition:transform .15s}
+table td:hover{transform:scale(1.02)}
+table td:first-child{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:.74rem;color:var(--pri);background:var(--pri-bg);letter-spacing:.3px;vertical-align:middle;min-width:80px;line-height:1.5}
+.cell-disc{font-weight:700;font-size:.78rem;letter-spacing:.2px;margin-bottom:3px}
+.cell-prof{font-size:.7rem;color:var(--text3);font-weight:500}
+.cell-turma{font-size:.7rem;color:var(--text3);font-weight:500}
+.cell-empty{background:var(--card2);color:var(--text3);font-size:.72rem;opacity:.4}
+.cell-gemea-tag{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-weight:700;letter-spacing:.3px;text-transform:uppercase;opacity:.65;margin-top:4px}
+.cell-gemea-tag svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5}
+.cell-hora{font-size:.6rem;font-weight:500;opacity:.7;display:block;margin-top:1px}
+.cell-recreio{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(26,58,143,.03) 4px,rgba(26,58,143,.03) 8px);text-align:center;font-size:.68rem;color:var(--text3);font-style:italic;padding:4px}
+
+/* CORES POR DISCIPLINA */
+.d-port{background:#E8F5EF;color:#1A6B47}.d-mat{background:#FFFBE6;color:#9A7800}.d-cien{background:#EDE9FE;color:#6D28D9}
+.d-hist{background:#FEF3C7;color:#92400E}.d-geo{background:#E0F2FE;color:#0369A1}.d-ing{background:#FCE7F3;color:#9D174D}
+.d-art{background:#FDF2F8;color:#BE185D}.d-ef{background:#DCFCE7;color:#16A34A}.d-rel{background:#F5F3FF;color:#7C3AED}
+.d-fin{background:#EEF0FB;color:#1A3A8F}.d-let{background:#FFF7ED;color:#C2410C}
+
+/* LEGENDA */
+.legenda{display:flex;flex-wrap:wrap;gap:6px;padding:12px 20px;border-top:1px solid var(--border);justify-content:center}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text3)}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:20px;text-align:center}
+footer p{font-size:.72rem;color:var(--text3)}
+
+/* DARK MODE */
+:root.dark{
+  --bg:#111827;--card:#1F2937;--card2:#374151;--border:#374151;
+  --text:#F9FAFB;--text2:#E5E7EB;--text3:#9CA3AF;
+  --shadow:0 2px 8px rgba(0,0,0,.3);--shadow2:0 4px 16px rgba(0,0,0,.4);
+  --pri:#4F7FE8;--pri-bg:#1E2A45;--pri-t:#93B4F5;
+  --gold:#F59E0B;--gold-bg:#2A1F00;--gold-t:#FCD34D;
+  --green:#34D399;--green-bg:#022C22;--green-t:#6EE7B7;
+  --red:#F87171;--red-bg:#2A0A0A;
+}
+:root.dark .d-port{background:#0B3D2E;color:#6EE7B7}:root.dark .d-mat{background:#2A1F00;color:#FCD34D}
+:root.dark .d-cien{background:#1E1545;color:#C4B5FD}:root.dark .d-hist{background:#2A1A00;color:#FCD34D}
+:root.dark .d-geo{background:#0C2D48;color:#7DD3FC}:root.dark .d-ing{background:#3D0A24;color:#F9A8D4}
+:root.dark .d-art{background:#3D0A24;color:#F9A8D4}:root.dark .d-ef{background:#052E16;color:#86EFAC}
+:root.dark .d-rel{background:#1E1545;color:#C4B5FD}:root.dark .d-fin{background:#1E2A45;color:#93B4F5}
+:root.dark .d-let{background:#2A1A00;color:#FDBA74}
+:root.dark .cell-empty{background:#374151}
+:root.dark table th{background:#4F7FE8}:root.dark table th:first-child{background:#3B6FD4}
+:root.dark table td:first-child{background:#1E2A45;color:#93B4F5}
+
+input,select{background:var(--card);color:var(--text)}
+input::placeholder{color:var(--text3)}
+
+/* PRINT */
+@media print{
+  .topbar,.hero,.tabs,.turno-tabs,.search-wrap,.grid,.nav-links,.btn-pdf,.legenda,footer,#dark-toggle{display:none!important}
+  .schedule-wrap{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .app{max-width:100%;padding:0}
+  body{background:#fff;color:#000}
+  table th{background:#1A3A8F!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  table{font-size:.72rem}
+  .schedule-header{padding:14px 16px}
+  .sh-title{font-size:1rem}
+  .tabs{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html"><svg width="80" height="22" viewBox="0 0 110 30" fill="none"><path d="M4 9C4 9 4 22 4 22C6 21 13 20 15 22L15 9C13 7 5 8 4 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><path d="M26 9C26 9 26 22 26 22C24 21 17 20 15 22L15 9C17 7 25 8 26 9Z" stroke="rgba(255,255,255,0.85)" stroke-width="1.4" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><line x1="15" y1="9" x2="15" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><path d="M15 3L16 5.8H19L16.5 7.4L17.5 10.2L15 8.6L12.5 10.2L13.5 7.4L11 5.8H14Z" fill="rgba(255,255,255,0.9)"/><text x="33" y="21" font-family="'Plus Jakarta Sans',sans-serif" font-size="18" font-weight="900" fill="white" letter-spacing="-0.5">MIRA</text></svg></a>
+  <div class="nav-links">
+    <a href="index.html">Portal</a>
+    <a href="#" style="color:#fff;font-weight:700">Horários</a>
+    <button id="dark-toggle" onclick="window.toggleDark()" title="Alternar tema" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.8);padding:6px;display:flex;align-items:center">
+      <svg id="dark-icon-moon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg id="dark-icon-sun" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <a href="login.html" style="font-size:.78rem;color:rgba(255,255,255,.85);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 14px;font-weight:600;display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M11 12l9-9"/><path d="M20 3l1 1-4 4-1-1"/></svg>Área do Professor</a>
+  </div>
+</div>
+
+<div class="app">
+  <div class="hero">
+    <h1>Horários de Aulas</h1>
+    <p>EMEB Maria Iraci Teófilo de Castro · Taquarana/AL</p>
+  </div>
+
+  <!-- TABS PRINCIPAL -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchMode('turma')">Por Turma</div>
+    <div class="tab" onclick="switchMode('prof')">Por Professor</div>
+  </div>
+
+  <!-- TURNO -->
+  <div class="turno-tabs">
+    <div class="turno-tab active" data-turno="manha" onclick="switchTurno('manha')">Manhã</div>
+    <div class="turno-tab" data-turno="tarde" onclick="switchTurno('tarde')">Tarde</div>
+  </div>
+
+  <!-- BUSCA -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Buscar turma ou professor..." oninput="filterItems()">
+    </div>
+  </div>
+
+  <!-- GRID SELEÇÃO -->
+  <div class="grid" id="items-grid"></div>
+
+  <!-- HORÁRIO -->
+  <div id="schedule-area"></div>
+
+  <footer>
+    <p>&copy; <span id="yr">2026</span> Ismael Marques · MIRA — Manual Iraci de Recursos para a Aprendizagem</p>
+  </footer>
+</div>
+
+<script type="module">
+// ══════════════════════════════════════════════════════════════════════════════
+// DADOS EXTRAÍDOS DOS PDFs DO FET
+// ══════════════════════════════════════════════════════════════════════════════
+
+const HORARIOS_MANHA = {
+  dias: ['SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA'],
+  // Seg/Qui = 5 aulas; Ter/Qua/Sex = 4 aulas
+  horas: {
+    normal: ['7:30','8:30','9:50','10:50'],  // Ter/Qua/Sex (recreio 9:30-9:50)
+    longo:  ['7:30','8:30','9:30','10:50','11:50'] // Seg/Qui (recreio 10:30-10:50)
+  },
+  turmas: {
+    '6º ANO A':{seg:['L. ING\nELINAIDI','HIST\nPATRICIA','ENS. REL\nRIQUELY','MAT\nHENRIQUE','G'],ter:['HIST\nPATRICIA','L. PORT\nGLEICE','ED. FÍSICA\nSATURNINO','MAT\nHENRIQUE'],qua:['L. ING\nELINAIDI','L. PORT\nGLEICE','LET. MAT\nNIKOLY','CIEN\nALAIDE'],qui:['MAT\nHENRIQUE','GEO\nLETICIA','ART\nALANA','L. PORT\nGLEICE','G'],sex:['EDUC. FINAN\nWALDEMIR','GEO\nLETICIA','CIEN\nALAIDE','ED. FÍSICA\nSATURNINO']},
+    '6º ANO B':{seg:['HIST\nPATRICIA','ENS. REL\nRIQUELY','L. ING\nELINAIDI','ART\nALANA','GEO\nLETICIA'],ter:['ED. FÍSICA\nSATURNINO','MAT\nHENRIQUE','LET. MAT\nNIKOLY','HIST\nPATRICIA'],qua:['MAT\nHENRIQUE','MAT\nHENRIQUE','L. ING\nELINAIDI','L. PORT\nGLEICE'],qui:['L. PORT\nGLEICE','L. PORT\nGLEICE','CIEN\nALAIDE','CIEN\nALAIDE','EDUC. FINAN\nWALDEMIR'],sex:['L. PORT\nGLEICE','','ED. FÍSICA\nSATURNINO','GEO\nLETICIA']},
+    '6º ANO C':{seg:['ENS. REL\nRIQUELY','GEO\nLETICIA','MAT\nHENRIQUE','L. ING\nELINAIDI','HIST\nPATRICIA'],ter:['L. PORT\nGLEICE','ED. FÍSICA\nSATURNINO','HIST\nPATRICIA','CIEN\nALAIDE'],qua:['L. PORT\nGLEICE','L. ING\nELINAIDI','MAT\nHENRIQUE','LET. MAT\nNIKOLY'],qui:['GEO\nLETICIA','ART\nALANA','MAT\nHENRIQUE','','CIEN\nALAIDE'],sex:['ED. FÍSICA\nSATURNINO','EDUC. FINAN\nWALDEMIR','L. PORT\nGLEICE','']},
+    '6º ANO D':{seg:['MAT\nHENRIQUE','G','HIST\nPATRICIA','HIST\nPATRICIA','L. ING\nELINAIDI'],ter:['MAT\nHENRIQUE','ART\nALANA','L. PORT\nGLEICE','ED. FÍSICA\nSATURNINO'],qua:['LET. MAT\nNIKOLY','CIEN\nALAIDE','L. PORT\nGLEICE','L. ING\nELINAIDI'],qui:['ENS. REL\nRIQUELY','ED. FÍSICA\nSATURNINO','GEO\nLETICIA','GEO\nLETICIA','MAT\nHENRIQUE'],sex:['CIEN\nALAIDE','L. PORT\nGLEICE','','EDUC. FINAN\nWALDEMIR']},
+    '6º ANO E':{seg:['ED. FÍSICA\nLUCAS COSTA','MAT\nAPARECIDO','L. PORT\nJESSICA JOSEFA','GEO\nLETICIA','ENS. REL\nRIQUELY'],ter:['ART\nFRANCIMEIRE','CIEN\nLUCIANA CLAUDIA','CIEN\nLUCIANA CLAUDIA','L. PORT\nJESSICA JOSEFA'],qua:['EDUC. FINAN\nAPOLINARIO','HIST\nMARIA JESSICA','LET. MAT\nNIKOLY',''],qui:['MAT\nAPARECIDO','MAT\nAPARECIDO','L. ING\nLEVI','L. ING\nLEVI','HIST\nMARIA JESSICA'],sex:['GEO\nLETICIA','ED. FÍSICA\nLUCAS COSTA','L. PORT\nJESSICA JOSEFA','L. PORT\nJESSICA JOSEFA']},
+    '7º ANO A':{seg:['ENS. REL\nMARIA JESSICA','MAT\nEVYLIN','ED. FÍSICA\nLUCAS COSTA','HIST\nJOSEFA SOUZA','HIST\nJOSEFA SOUZA'],ter:['MAT\nEVYLIN','ART\nFRANCIMEIRE','L. PORT\nJAELSON','L. PORT\nJAELSON'],qua:['LET. CIEN\nALAIDE','L. ING\nLEVI','MAT\nEVYLIN','CIEN\nLUCIANA CLAUDIA'],qui:['L. ING\nLEVI','L. PORT\nJAELSON','CIEN\nLUCIANA CLAUDIA','GEO\nEDINELSON','GEO\nEDINELSON'],sex:['L. PORT\nJAELSON','L. PORT\nJAELSON','EDUC. FINAN\nAPOLINARIO','ED. FÍSICA\nLUCAS COSTA']},
+    '7º ANO B':{seg:['HIST\nJOSEFA SOUZA','HIST\nJOSEFA SOUZA','MAT\nEVYLIN','ED. FÍSICA\nLUCAS COSTA','GEO\nHENRIQUE QUINTINO'],ter:['LET. CIEN\nALAIDE','L. PORT\nJESSICA JOSEFA','CIEN\nLUCIANA CLAUDIA','L. ING\nALANA'],qua:['MAT\nEVYLIN','CIEN\nLUCIANA CLAUDIA','EDUC. FINAN\nAPOLINARIO','ART\nFRANCIMEIRE'],qui:['L. ING\nALANA','','GEO\nHENRIQUE QUINTINO','L. PORT\nJESSICA JOSEFA','L. PORT\nJESSICA JOSEFA'],sex:['L. PORT\nJESSICA JOSEFA','ENS. REL\nMARIA JESSICA','ED. FÍSICA\nLUCAS COSTA','MAT\nEVYLIN']},
+    '7º ANO C':{seg:['L. ING\nALANA','ED. FÍSICA\nLUCAS COSTA','GEO\nHENRIQUE QUINTINO','MAT\nEVYLIN','G'],ter:['L. PORT\nJAKCELY','ART\nFRANCIMEIRE','LET. CIEN\nALAIDE','CIEN\nLUCIANA CLAUDIA'],qua:['HIST\nANA PAULA','HIST\nANA PAULA','L. PORT\nJAKCELY','MAT\nEVYLIN'],qui:['CIEN\nLUCIANA CLAUDIA','GEO\nHENRIQUE QUINTINO','ENS. REL\nMARIA JESSICA','L. PORT\nJAKCELY','L. ING\nALANA'],sex:['ED. FÍSICA\nLUCAS COSTA','EDUC. FINAN\nAPOLINARIO','MAT\nEVYLIN','L. ING\nALANA']},
+    '7º ANO D':{seg:['MAT\nEVYLIN','ENS. REL\nMARIA JESSICA','EDUC. FINAN\nAPOLINARIO','GEO\nHENRIQUE QUINTINO','L. ING\nALANA'],ter:['ED. FÍSICA\nLORRAN','L. PORT\nJAKCELY','MAT\nEVYLIN','ART\nFRANCIMEIRE'],qua:['CIEN\nLUCIANA CLAUDIA','L. PORT\nJAKCELY','HIST\nANA PAULA','HIST\nANA PAULA'],qui:['LET. CIEN\nALAIDE','L. PORT\nJAKCELY','L. ING\nALANA','CIEN\nLUCIANA CLAUDIA','GEO\nHENRIQUE QUINTINO'],sex:['MAT\nEVYLIN','L. PORT\nJAKCELY','','ED. FÍSICA\nLORRAN']},
+    '7º ANO E':{seg:['GEO\nHENRIQUE QUINTINO','GEO\nHENRIQUE QUINTINO','L. ING\nALANA','MAT\nAPARECIDO','G'],ter:['CIEN\nLUCIANA CLAUDIA','ED. FÍSICA\nLORRAN','L. PORT\nJAKCELY','MAT\nAPARECIDO'],qua:['L. PORT\nJAKCELY','CIEN\nLUCIANA CLAUDIA','ART\nFRANCIMEIRE',''],qui:['L. PORT\nJAKCELY','LET. CIEN\nJONATHAN','HIST\nDJALMA','EDUC. FINAN\nAPOLINARIO','G'],sex:['ENS. REL\nMARIA JESSICA','L. ING\nALANA','ED. FÍSICA\nLORRAN','']},
+    '8º ANO A':{seg:['EDUC. FINAN\nAPOLINARIO','MAT\nNIKOLY','ART\nFRANCIMEIRE','GEO\nMADSON','LET. LIT\nBRUNA'],ter:['L. PORT\nJOSILENE','L. ING\nISABEL C','CIEN\nALAIDE','ED. FÍSICA\nNILTON'],qua:['L. PORT\nJOSILENE','HIST\nALEXANDRE','L. ING\nISABEL C','ED. FÍSICA\nNILTON'],qui:['HIST\nALEXANDRE','MAT\nNIKOLY','ENS. REL\nMARIA JESSICA','L. PORT\nJOSILENE','MAT\nNIKOLY'],sex:['GEO\nMADSON','MAT\nNIKOLY','','CIEN\nALAIDE']},
+    '8º ANO B':{seg:['GEO\nMADSON','LET. LIT\nBRUNA','ENS. REL\nMARIA JESSICA','MAT\nNIKOLY','MAT\nNIKOLY'],ter:['L. ING\nISABEL C','ED. FÍSICA\nNILTON','L. PORT\nJOSILENE','MAT\nNIKOLY'],qua:['ART\nFRANCIMEIRE','ED. FÍSICA\nNILTON','L. PORT\nJOSILENE','HIST\nALEXANDRE'],qui:['L. ING\nISABEL C','CIEN\nALAIDE','MAT\nNIKOLY','L. PORT\nJOSILENE','HIST\nALEXANDRE'],sex:['EDUC. FINAN\nAPOLINARIO','CIEN\nALAIDE','GEO\nMADSON','']},
+    '8º ANO C':{seg:['LET. LIT\nBRUNA','GEO\nMADSON','GEO\nMADSON','EDUC. FINAN\nAPOLINARIO','ENS. REL\nMARIA JESSICA'],ter:['ED. FÍSICA\nNILTON','MAT\nNIKOLY','L. ING\nISABEL C','L. PORT\nJOSILENE'],qua:['HIST\nMARIA JESSICA','CIEN\nJONATHAN','ED. FÍSICA\nNILTON','ART\nGIVALDO'],qui:['MAT\nNIKOLY','L. PORT\nJOSILENE','CIEN\nJONATHAN','L. ING\nISABEL C','L. PORT\nJOSILENE'],sex:['MAT\nNIKOLY','MAT\nNIKOLY','','HIST\nMARIA JESSICA']},
+    '8º ANO D':{seg:['MAT\nNIKOLY','EDUC. FINAN\nAPOLINARIO','LET. LIT\nBRUNA','ART\nGIVALDO','GEO\nMADSON'],ter:['ENS. REL\nLUIS FERNANDO','L. PORT\nJOSILENE','ED. FÍSICA\nNILTON','L. ING\nISABEL C'],qua:['ED. FÍSICA\nNILTON','MAT\nNIKOLY','CIEN\nJONATHAN','HIST\nMARIA JESSICA'],qui:['HIST\nMARIA JESSICA','L. PORT\nJOSILENE','MAT\nNIKOLY','CIEN\nJONATHAN','L. ING\nISABEL C'],sex:['L. PORT\nJOSILENE','GEO\nMADSON','','']},
+    '8º ANO E':{seg:['MAT\nAPARECIDO','L. ING\nALANA','ART\nGIVALDO','HIST\nMARIA JESSICA','EDUC. FINAN\nAPOLINARIO'],ter:['L. PORT\nJAELSON','L. PORT\nJAELSON','ED. FÍSICA\nLORRAN','ENS. REL\nLUIS FERNANDO'],qua:['MAT\nAPARECIDO','GEO\nEDINELSON','HIST\nMARIA JESSICA','CIEN\nJONATHAN'],qui:['CIEN\nJONATHAN','LET. LIT\nJESSICA JOSEFA','GEO\nEDINELSON','MAT\nAPARECIDO','L. ING\nALANA'],sex:['ED. FÍSICA\nLORRAN','','L. PORT\nJAELSON','L. PORT\nJAELSON']},
+    '9º ANO A':{seg:['L. PORT\nGUILHERME','L. PORT\nGUILHERME','L. ING\nFERNANDA','LET. HUMANAS\nRIQUELY','MAT\nMATEUS'],ter:['MAT\nMATEUS','','GEO\nHENRIQUE QUINTINO','ED. FÍSICA\nLORRAN'],qua:['CIEN\nJONATHAN','','L. ING\nFERNANDA','MAT\nMATEUS'],qui:['HIST\nDJALMA','HIST\nDJALMA','L. PORT\nGUILHERME','L. PORT\nGUILHERME','CIEN\nJONATHAN'],sex:['ENS. REL\nLUIS FERNANDO','ED. FÍSICA\nLORRAN','GEO\nHENRIQUE QUINTINO','EDUC. FINAN\nHENRIQUE']},
+    '9º ANO B':{seg:['L. ING\nFERNANDA','ED. FÍSICA\nRAFAELA','L. PORT\nGUILHERME','L. PORT\nGUILHERME','HIST\nBRENDA'],ter:['CIEN\nMARIA CLAUDIA','GEO\nHENRIQUE QUINTINO','MAT\nMATEUS','ED. FÍSICA\nRAFAELA'],qua:['CIEN\nMARIA CLAUDIA','L. ING\nFERNANDA','ART\nGIVALDO','LET. HUMANAS\nRIQUELY'],qui:['L. PORT\nGUILHERME','L. PORT\nGUILHERME','MAT\nMATEUS','ENS. REL\nLUIS FERNANDO','HIST\nBRENDA'],sex:['GEO\nHENRIQUE QUINTINO','MAT\nMATEUS','EDUC. FINAN\nHENRIQUE','']},
+    '9º ANO C':{seg:['MAT\nMATEUS','ART\nGIVALDO','HIST\nBRENDA','L. ING\nFERNANDA','ED. FÍSICA\nRAFAELA'],ter:['GEO\nHENRIQUE QUINTINO','L. PORT\nJOSÉ LIMA','','CIEN\nMARIA CLAUDIA'],qua:['L. PORT\nJOSÉ LIMA','CIEN\nMARIA CLAUDIA','HIST\nBRENDA','L. ING\nFERNANDA'],qui:['L. PORT\nJOSÉ LIMA','LET. HUMANAS\nRIQUELY','ENS. REL\nLUIS FERNANDO','MAT\nMATEUS','G'],sex:['MAT\nMATEUS','EDUC. FINAN\nHENRIQUE','','GEO\nHENRIQUE QUINTINO']},
+    '9º ANO D':{seg:['ART\nGIVALDO','HIST\nBRENDA','ED. FÍSICA\nRAFAELA','MAT\nMATEUS','L. ING\nFERNANDA'],ter:['L. PORT\nJOSÉ LIMA','ENS. REL\nLUIS FERNANDO','CIEN\nMARIA CLAUDIA','GEO\nHENRIQUE QUINTINO'],qua:['L. ING\nFERNANDA','ED. FÍSICA\nRAFAELA','L. PORT\nJOSÉ LIMA','CIEN\nMARIA CLAUDIA'],qui:['HIST\nBRENDA','MAT\nMATEUS','LET. HUMANAS\nRIQUELY','L. PORT\nJOSÉ LIMA','G'],sex:['EDUC. FINAN\nHENRIQUE','GEO\nHENRIQUE QUINTINO','MAT\nMATEUS','']},
+    '9º ANO E':{seg:['ED. FÍSICA\nRAFAELA','MAT\nMATEUS','L. ING\nALANA','HIST\nBRENDA','ART\nGIVALDO'],ter:['GEO\nMADSON','CIEN\nMARIA CLAUDIA','CIEN\nMARIA CLAUDIA','L. PORT\nJOSÉ LIMA'],qua:['ED. FÍSICA\nRAFAELA','MAT\nMATEUS','','L. PORT\nJOSÉ LIMA'],qui:['MAT\nMATEUS','L. PORT\nJOSÉ LIMA','','HIST\nBRENDA','LET. HUMANAS\nRIQUELY'],sex:['L. ING\nALANA','ENS. REL\nLUIS FERNANDO','EDUC. FINAN\nWALDEMIR','GEO\nMADSON']}
+  }
+};
+
+const HORARIOS_TARDE = {
+  dias: ['SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA'],
+  horas: {
+    normal: ['13:00','14:00','15:20','16:20'],  // Ter/Qua/Sex (recreio 15:00-15:20)
+    longo:  ['13:00','14:00','15:00','16:20','17:20'] // Seg/Qui (recreio 16:00-16:20)
+  },
+  turmas: {
+    '6º ANO F':{seg:['L. ING\nELINAIDI','HIST\nJOSEFA SOUZA','MAT\nMARCIA','LET. MAT\nNIKOLY','GEO\nLETICIA'],ter:['MAT\nMARCIA','EDU. FINAN\nKAWANE','L. PORT\nGABRIEL','L. ING\nELINAIDI'],qua:['HIST\nJOSEFA SOUZA','L. PORT\nGABRIEL','ENS. REL\nRIQUELY','CIEN\nGEORGE'],qui:['ARTE\nLEVI','MAT\nMARCIA','ED. FÍS\nSATURNINO','CIEN\nGEORGE','GEO\nLETICIA'],sex:['L. PORT\nGABRIEL','','ED. FÍS\nSATURNINO','']},
+    '6º ANO G':{seg:['MAT\nMARCIA','GEO\nLETICIA','L. ING\nELINAIDI','L. ING\nELINAIDI','L. PORT\nGABRIEL'],ter:['L. PORT\nGABRIEL','ARTE\nLEVI','HIST\nJOSEFA SOUZA','CIEN\nGEORGE'],qua:['MAT\nMARCIA','ED. FÍS\nSATURNINO','LET. MAT\nNIKOLY','HIST\nJOSEFA SOUZA'],qui:['GEO\nLETICIA','','CIEN\nGEORGE','EDU. FINAN\nKAWANE','ENS. REL\nRIQUELY'],sex:['ED. FÍS\nSATURNINO','','L. PORT\nGABRIEL','MAT\nMARCIA']},
+    '6º ANO H':{seg:['GEO\nLETICIA','MAT\nMARCIA','L. PORT\nGABRIEL','LET. MAT\nNIKOLY','L. ING\nELINAIDI'],ter:['HIST\nJOSEFA SOUZA','L. ING\nELINAIDI','MAT\nMARCIA','GEO\nLETICIA'],qua:['CIEN\nGEORGE','HIST\nJOSEFA SOUZA','EDU. FINAN\nKAWANE',''],qui:['L. PORT\nGABRIEL','ARTE\nLUIS FERNANDO','ENS. REL\nRIQUELY','ED. FÍS\nLUCAS COSTA','CIEN\nGEORGE'],sex:['MAT\nMARCIA','L. PORT\nGABRIEL','ED. FÍS\nLUCAS COSTA','']},
+    '6º ANO I':{seg:['HIST\nJOSEFA SOUZA','L. ING\nELINAIDI','LET. MAT\nNIKOLY','ED. FÍS\nLUCAS COSTA','MAT\nMARCIA'],ter:['CIEN\nGEORGE','HIST\nJOSEFA SOUZA','L. ING\nELINAIDI','L. PORT\nGABRIEL'],qua:['EDU. FINAN\nKAWANE','CIEN\nGEORGE','MAT\nMARCIA','L. PORT\nGABRIEL'],qui:['ENS. REL\nRIQUELY','GEO\nLETICIA','GEO\nLETICIA','L. PORT\nGABRIEL',''],sex:['ARTE\nLUIS FERNANDO','ED. FÍS\nLUCAS COSTA','MAT\nMARCIA','']},
+    '7º ANO F':{seg:['ED. FÍS\nLUCAS COSTA','LET. CIEN\nJONATHAN','GEO\nLETICIA','GEO\nLETICIA','MAT\nAPARECIDO'],ter:['ARTE\nLUIS FERNANDO','L. PORT\nJESSICA JOSEFA','L. ING\nLEVI','HIST\nJOSEFA SOUZA'],qua:['ENS. REL\nRIQUELY','MAT\nAPARECIDO','HIST\nJOSEFA SOUZA','EDU. FINAN\nKAWANE'],qui:['L. PORT\nJESSICA JOSEFA','L. PORT\nJESSICA JOSEFA','CIEN\nLUCIANA MARIA','MAT\nAPARECIDO',''],sex:['ED. FÍS\nLUCAS COSTA','','L. ING\nLEVI','CIEN\nLUCIANA MARIA']},
+    '7º ANO G':{seg:['CIEN\nLUCIANA MARIA','ED. FÍS\nLUCAS COSTA','ED. FÍS\nLUCAS COSTA','MAT\nAPARECIDO','LET. CIEN\nJONATHAN'],ter:['L. PORT\nJESSICA JOSEFA','L. ING\nLEVI','ENS. REL\nRIQUELY','CIEN\nLUCIANA MARIA'],qua:['MAT\nAPARECIDO','HIST\nDJALMA','GEO\nANA PAULA','GEO\nANA PAULA'],qui:['MAT\nAPARECIDO','EDU. FINAN\nKAWANE','L. PORT\nJESSICA JOSEFA','L. ING\nLEVI','HIST\nDJALMA'],sex:['L. PORT\nJESSICA JOSEFA','','ARTE\nLUIS FERNANDO','']},
+    '7º ANO H':{seg:['MAT\nAPARECIDO','CIEN\nLUCIANA MARIA','LET. CIEN\nJONATHAN','EDU. FINAN\nKAWANE','ED. FÍS\nLORRAN'],ter:['L. ING\nLEVI','ARTE\nLUIS FERNANDO','ED. FÍS\nLORRAN','L. PORT\nJESSICA JOSEFA'],qua:['GEO\nANA PAULA','GEO\nANA PAULA','MAT\nAPARECIDO','ENS. REL\nRIQUELY'],qui:['HIST\nDJALMA','HIST\nDJALMA','MAT\nAPARECIDO','','L. PORT\nJESSICA JOSEFA'],sex:['CIEN\nLUCIANA MARIA','L. ING\nLEVI','L. PORT\nJESSICA JOSEFA','']},
+    '8º ANO F':{seg:['MAT\nNIKOLY','MAT\nNIKOLY','EDU. FINAN\nKAWANE','CIEN\nLUCIANA MARIA','ENS. REL\nRIQUELY'],ter:['L. PORT\nJAELSON','L. PORT\nJAELSON','GEO\nEDINELSON','ARTE\nFRANCIMEIRE'],qua:['MAT\nNIKOLY','MAT\nNIKOLY','ED. FÍS\nNILTON','ED. FÍS\nNILTON'],qui:['L. ING\nISABEL C','L. ING\nISABEL C','HIST\nALEXANDRE','LET. LIT\nGUILHERME','GEO\nEDINELSON'],sex:['L. PORT\nJAELSON','L. PORT\nJAELSON','CIEN\nLUCIANA MARIA','HIST\nALEXANDRE']},
+    '8º ANO G':{seg:['MAT\nGILVALDO QUINTINO','MAT\nGILVALDO QUINTINO','CIEN\nLUCIANA MARIA','ENS. REL\nRIQUELY','EDU. FINAN\nKAWANE'],ter:['ARTE\nFRANCIMEIRE','GEO\nEDINELSON','L. PORT\nJAELSON','L. PORT\nJAELSON'],qua:['ED. FÍS\nNILTON','ED. FÍS\nNILTON','MAT\nGILVALDO QUINTINO','MAT\nGILVALDO QUINTINO'],qui:['GEO\nEDINELSON','LET. LIT\nGUILHERME','L. ING\nISABEL C','L. ING\nISABEL C','HIST\nALEXANDRE'],sex:['HIST\nALEXANDRE','CIEN\nLUCIANA MARIA','L. PORT\nJAELSON','L. PORT\nJAELSON']},
+    '8º ANO H':{seg:['EDU. FINAN\nKAWANE','ED. FÍS\nLORRAN','ED. FÍS\nLORRAN','MAT\nGILVALDO QUINTINO','MAT\nGILVALDO QUINTINO'],ter:['ENS. REL\nRIQUELY','ARTE\nFRANCIMEIRE','CIEN\nLUCIANA MARIA','GEO\nEDINELSON'],qua:['MAT\nGILVALDO QUINTINO','MAT\nGILVALDO QUINTINO','L. PORT\nBRUNA','L. PORT\nBRUNA'],qui:['HIST\nALEXANDRE','CIEN\nLUCIANA MARIA','GEO\nEDINELSON','L. ING\nLEVI','LET. LIT\nGUILHERME'],sex:['L. ING\nLEVI','HIST\nALEXANDRE','L. PORT\nBRUNA','L. PORT\nBRUNA']},
+    '8º ANO I':{seg:['ENS. REL\nRIQUELY','EDU. FINAN\nKAWANE','MAT\nMATEUS','MAT\nMATEUS','CIEN\nLUCIANA MARIA'],ter:['GEO\nEDINELSON','CIEN\nLUCIANA MARIA','ARTE\nFRANCIMEIRE','L. ING\nLEVI'],qua:['L. PORT\nBRUNA','L. PORT\nBRUNA','MAT\nMATEUS','MAT\nMATEUS'],qui:['LET. LIT\nGUILHERME','GEO\nEDINELSON','ED. FÍS\nLUIS FERNANDO','HIST\nALEXANDRE','L. ING\nLEVI'],sex:['L. PORT\nBRUNA','','HIST\nALEXANDRE','ED. FÍS\nLUIS FERNANDO']},
+    '9º ANO F':{seg:['ARTE\nGIVALDO','ED. FÍS\nRAFAELA','ED. FÍS\nRAFAELA','MAT\nANA MERCIA','L. ING\nFERNANDA'],ter:['CIEN\nLUCIANA MARIA','MAT\nANA MERCIA','L. PORT\nVALDECI','GEO\nMADSON'],qua:['HIST\nDJALMA','L. ING\nFERNANDA','HIST\nDJALMA','MAT\nANA MERCIA'],qui:['L. PORT\nVALDECI','LET. HUMAN.\nRIQUELY','GEO\nMADSON','L. PORT\nVALDECI','CIEN\nLUCIANA MARIA'],sex:['EDU. FINAN\nKAWANE','ENS. REL\nLUIS FERNANDO','','']},
+    '9º ANO G':{seg:['L. ING\nFERNANDA','LET. HUMAN.\nRIQUELY','ARTE\nGIVALDO','ED. FÍS\nRAFAELA','ED. FÍS\nRAFAELA'],ter:['MAT\nANA MERCIA','GEO\nMADSON','L. PORT\nVALDECI','HIST\nDJALMA'],qua:['CIEN\nCLAUDIA','','L. ING\nFERNANDA','HIST\nDJALMA'],qui:['MAT\nANA MERCIA','L. PORT\nVALDECI','L. PORT\nVALDECI','GEO\nMADSON','ENS. REL\nLUIS FERNANDO'],sex:['MAT\nANA MERCIA','','EDU. FINAN\nKAWANE','']},
+    '9º ANO H':{seg:['MAT\nANA MERCIA','L. PORT\nVALDECI','L. ING\nFERNANDA','ED. FÍS\nLORRAN','ARTE\nGIVALDO'],ter:['ED. FÍS\nLORRAN','LET. HUMAN.\nRIQUELY','GEO\nMADSON','ENS. REL\nLUIS FERNANDO'],qua:['L. ING\nFERNANDA','','CIEN\nCLAUDIA','CIEN\nCLAUDIA'],qui:['HIST\nBRENDA','MAT\nANA MERCIA','MAT\nANA MERCIA','L. PORT\nVALDECI',''],sex:['GEO\nMADSON','MAT\nANA MERCIA','L. PORT\nVALDECI','EDU. FINAN\nKAWANE']},
+    '9º ANO I':{seg:['ED. FÍS\nLORRAN','ARTE\nGIVALDO','LET. HUMAN.\nRIQUELY','L. ING\nFERNANDA','MAT\nANA MERCIA'],ter:['GEO\nMADSON','ED. FÍS\nLORRAN','CIEN\nGEORGE','MAT\nANA MERCIA'],qua:['L. PORT\nVALDECI','L. PORT\nVALDECI','CIEN\nGEORGE','L. ING\nFERNANDA'],qui:['ENS. REL\nLUIS FERNANDO','GEO\nMADSON','HIST\nBRENDA','HIST\nBRENDA','EDU. FINAN\nKAWANE'],sex:['L. PORT\nVALDECI','','MAT\nANA MERCIA','']}
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MAPEAMENTO DE CORES POR DISCIPLINA
+// ══════════════════════════════════════════════════════════════════════════════
+function discClass(d){
+  if(!d)return'cell-empty';
+  const u=d.toUpperCase();
+  if(u.includes('L. PORT')||u.includes('LET. LIT'))return'd-port';
+  if(u.includes('MAT')||u.includes('LET. MAT'))return'd-mat';
+  if(u.includes('CIEN')||u.includes('LET. CIEN'))return'd-cien';
+  if(u.includes('HIST'))return'd-hist';
+  if(u.includes('GEO'))return'd-geo';
+  if(u.includes('ING'))return'd-ing';
+  if(u.includes('ART'))return'd-art';
+  if(u.includes('ED. FÍS')||u.includes('ED. FÍSICA'))return'd-ef';
+  if(u.includes('ENS. REL'))return'd-rel';
+  if(u.includes('EDUC. FINAN')||u.includes('EDU. FINAN'))return'd-fin';
+  if(u.includes('LET.'))return'd-let';
+  return'd-fin';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let mode='turma',turno='manha',selected=null;
+
+window.switchMode=function switchMode(m){
+  mode=m;selected=null;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.textContent.includes(m==='turma'?'Turma':'Professor')));
+  document.getElementById('search').value='';
+  document.getElementById('search').placeholder=m==='turma'?'Buscar turma...':'Buscar professor...';
+  renderGrid();
+  document.getElementById('schedule-area').innerHTML='';
+}
+
+window.switchTurno=function switchTurno(t){
+  turno=t;selected=null;
+  document.querySelectorAll('.turno-tab').forEach(b=>b.classList.toggle('active',b.dataset.turno===t));
+  renderGrid();
+  document.getElementById('schedule-area').innerHTML='';
+}
+
+function getDB(){return turno==='manha'?HORARIOS_MANHA:HORARIOS_TARDE;}
+
+// ── Construir índice de professores a partir dos dados ──
+function buildProfIndex(){
+  const profs={};
+  [HORARIOS_MANHA,HORARIOS_TARDE].forEach((db,ti)=>{
+    const turnoKey=ti===0?'manha':'tarde';
+    Object.entries(db.turmas).forEach(([turma,dias])=>{
+      ['seg','ter','qua','qui','sex'].forEach((d,di)=>{
+        (dias[d]||[]).forEach((cell,ai)=>{
+          if(!cell||cell==='G')return;
+          const parts=cell.split('\n');
+          if(parts.length<2)return;
+          const disc=parts[0],prof=parts[1];
+          if(!profs[prof])profs[prof]={turnos:new Set(),disciplinas:new Set(),aulas:{}};
+          profs[prof].turnos.add(turnoKey);
+          profs[prof].disciplinas.add(disc);
+          if(!profs[prof].aulas[turnoKey])profs[prof].aulas[turnoKey]={seg:[],ter:[],qua:[],qui:[],sex:[]};
+          profs[prof].aulas[turnoKey][d][ai]=turma+'\n'+disc;
+          // Se o próximo slot é G, marcar como gêmea no prof também
+          const nextCell=(dias[d]||[])[ai+1];
+          if(nextCell==='G'){
+            profs[prof].aulas[turnoKey][d][ai+1]='G';
+          }
+        });
+      });
+    });
+  });
+  return profs;
+}
+const PROFS=buildProfIndex();
+
+function renderGrid(){
+  const grid=document.getElementById('items-grid');
+  const q=document.getElementById('search').value.toLowerCase();
+  if(mode==='turma'){
+    const db=getDB();
+    const turmas=Object.keys(db.turmas).filter(t=>t.toLowerCase().includes(q));
+    grid.innerHTML=turmas.map(t=>{
+      const serie=t.match(/\d/)?.[0]||'';
+      return`<div class="item-card${selected===t?' active':''}" onclick="selectItem('${t}')"><div class="ic-name">${t}</div><div class="ic-meta">${turno==='manha'?'Manhã':'Tarde'}</div></div>`;
+    }).join('')||'<p style="color:var(--text3);font-size:.85rem;padding:20px;text-align:center;grid-column:1/-1">Nenhuma turma encontrada.</p>';
+  } else {
+    const profNames=Object.keys(PROFS).filter(p=>PROFS[p].turnos.has(turno)).filter(p=>p.toLowerCase().includes(q)).sort();
+    grid.innerHTML=profNames.map(p=>{
+      const discs=[...PROFS[p].disciplinas].slice(0,2).join(', ');
+      return`<div class="item-card${selected===p?' active':''}" onclick="selectItem('${p.replace(/'/g,"\\'")}')"><div class="ic-name">${p}</div><div class="ic-meta">${discs}</div></div>`;
+    }).join('')||'<p style="color:var(--text3);font-size:.85rem;padding:20px;text-align:center;grid-column:1/-1">Nenhum professor encontrado.</p>';
+  }
+}
+
+window.filterItems=function filterItems(){renderGrid();}
+
+window.selectItem=function selectItem(name){
+  selected=name;
+  renderGrid();
+  renderSchedule(name);
+  document.getElementById('schedule-area').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RENDERIZAR TABELA (com detecção de aulas gêmeas)
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Detectar aulas gêmeas:
+// 1. Marcador 'G' = segundo slot explícito de aula gêmea (extraído do PDF)
+// 2. Mesma disciplina+extra em slots consecutivos = detecção automática
+function detectGemeas(diaAulas){
+  const result=[];
+  let i=0;
+  while(i<diaAulas.length){
+    const cell=diaAulas[i];
+    // Verificar se o próximo slot é 'G' (marcador explícito de gêmea)
+    if(cell&&cell.disc&&i+1<diaAulas.length){
+      const next=diaAulas[i+1];
+      if(next&&next.disc==='G'){
+        result.push({disc:cell.disc,extra:cell.extra,span:2,startIdx:i});
+        i+=2;
+        continue;
+      }
+      // Detecção automática: mesma disc+extra consecutivos
+      if(next&&next.disc===cell.disc&&next.extra===cell.extra&&cell.disc){
+        result.push({disc:cell.disc,extra:cell.extra,span:2,startIdx:i});
+        i+=2;
+        continue;
+      }
+    }
+    result.push({disc:cell?cell.disc:'',extra:cell?cell.extra:'',span:1,startIdx:i});
+    i++;
+  }
+  return result;
+}
+
+function renderSchedule(name){
+  const db=getDB();
+  const diasLabel=['SEG','TER','QUA','QUI','SEX'];
+  const diasKey=['seg','ter','qua','qui','sex'];
+  const isLongo=[true,false,false,true,false];
+  const horas=db.horas;
+
+  let rawData; // array [diaIndex][aulaIndex] = {disc,extra}
+  let icon,title,subtitle;
+
+  if(mode==='turma'){
+    const t=db.turmas[name];
+    if(!t)return;
+    icon='<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>';
+    title=name;
+    subtitle=(turno==='manha'?'Manhã · 7:30':'Tarde · 13:00')+' · EMEB Maria Iraci';
+    rawData=diasKey.map((d,di)=>{
+      const aulas=t[d]||[];
+      const max=isLongo[di]?5:4;
+      const arr=[];
+      for(let i=0;i<max;i++){
+        if(!aulas[i])arr.push({disc:'',extra:''});
+        else if(aulas[i]==='G')arr.push({disc:'G',extra:''});
+        else{const p=aulas[i].split('\n');arr.push({disc:p[0]||'',extra:p[1]||''});}
+      }
+      return arr;
+    });
+  } else {
+    const prof=PROFS[name];
+    if(!prof||!prof.aulas[turno])return;
+    icon='<circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>';
+    title=name;
+    const discs=[...prof.disciplinas].join(', ');
+    subtitle=discs+' · '+(turno==='manha'?'Manhã':'Tarde');
+    const pa=prof.aulas[turno];
+    rawData=diasKey.map((d,di)=>{
+      const aulas=pa[d]||[];
+      const max=isLongo[di]?5:4;
+      const arr=[];
+      for(let i=0;i<max;i++){
+        if(!aulas[i])arr.push({disc:'',extra:''});
+        else if(aulas[i]==='G')arr.push({disc:'G',extra:''});
+        else{const p=aulas[i].split('\n');arr.push({disc:p[1]||'',extra:p[0]||''});}
+      }
+      return arr;
+    });
+  }
+
+  // Detectar gêmeas por dia
+  const gemeasPorDia=rawData.map(diaAulas=>detectGemeas(diaAulas));
+
+  // Construir mapa: para cada slot [dia][aula], saber se é span=2, span=1, ou "skip" (segundo slot de gêmea)
+  // slotInfo[dia][aula] = {disc,extra,rowspan,skip}
+  const slotInfo=[];
+  for(let di=0;di<5;di++){
+    const max=isLongo[di]?5:4;
+    const info=new Array(max).fill(null);
+    const gemeas=gemeasPorDia[di];
+    for(const g of gemeas){
+      info[g.startIdx]={disc:g.disc,extra:g.extra,rowspan:g.span};
+      if(g.span===2&&g.startIdx+1<max){
+        info[g.startIdx+1]={skip:true};
+      }
+    }
+    // Preencher vazios
+    for(let a=0;a<max;a++){
+      if(!info[a])info[a]={disc:'',extra:'',rowspan:1};
+    }
+    slotInfo.push(info);
+  }
+
+  // Montar tabela
+  const maxAulas=5;
+  let html=`<div class="schedule-wrap"><div class="schedule-header"><div class="sh-left"><div class="sh-icon"><svg viewBox="0 0 24 24">${icon}</svg></div><div><div class="sh-title">${title}</div><div class="sh-sub">${subtitle}</div></div></div><button class="btn-pdf" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Baixar PDF</button></div>`;
+  html+=`<div class="tbl-scroll"><table><thead><tr><th></th>`;
+  diasLabel.forEach(d=>html+=`<th>${d}</th>`);
+  html+=`</tr></thead><tbody>`;
+
+  // Determinar posição do recreio — diferente para dias normais vs longos
+  // Nos dias normais (4 aulas): recreio após A2 (index 1), antes de A3 (index 2)
+  // Nos dias longos (5 aulas): recreio após A3 (index 2), antes de A4 (index 3)
+  // Na tabela unificada, inserir recreio antes do index 2 nos normais e antes do index 3 nos longos
+  // Simplificação: uma linha de recreio entre index 1 e 2 nos dias de 4, entre 2 e 3 nos dias de 5
+  // Como a tabela tem colunas mistas, usar a abordagem de inserir recreio na posição adequada
+  const recreioAfter=2; // Após A2 nos normais, após A3 nos longos — mostrar na posição 2
+
+  for(let a=0;a<maxAulas;a++){
+    const rowHasContent=slotInfo.some((dia,di)=>{
+      const max=isLongo[di]?5:4;
+      return a<max;
+    });
+    if(!rowHasContent)continue;
+
+    // Recreio: posição diferente por dia
+    // Dias de 4 aulas (ter/qua/sex): recreio após A2 (antes de index 2)
+    // Dias de 5 aulas (seg/qui): recreio após A3 (antes de index 3)
+    // Na tabela unificada, precisamos de 2 linhas de recreio:
+    // - Uma na posição 2 (para ter/qua/sex)
+    // - Uma na posição 3 (para seg/qui)
+    // Simplificação: usar uma única linha de recreio na posição 2 para dias de 4,
+    // e na posição 3 para dias de 5. Como a tabela mistura, vamos inserir o recreio
+    // como células individuais por coluna.
+    
+    // Abordagem: inserir linha de recreio ANTES de a==2 para dias normais
+    // e ANTES de a==3 para dias longos
+    // Como são misturados, inserir recreio adaptativo por coluna
+    if(a===2){
+      // Linha de recreio para dias de 4 aulas (ter/qua/sex)
+      html+=`<tr>`;
+      html+=`<td style="padding:4px;background:var(--card2);font-size:.62rem;color:var(--text3);font-style:italic;text-align:center;border-radius:6px"><svg viewBox="0 0 24 24" style="width:10px;height:10px;vertical-align:-1px;stroke:currentColor;fill:none;stroke-width:2"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg></td>`;
+      for(let di=0;di<5;di++){
+        if(!isLongo[di]){
+          html+=`<td style="padding:4px;background:var(--card2);text-align:center;font-size:.62rem;color:var(--text3);font-style:italic;border-radius:6px">Recreio · 20 min</td>`;
+        } else {
+          html+=`<td style="padding:4px;border-radius:6px"></td>`;
+        }
+      }
+      html+=`</tr>`;
+    }
+    if(a===3){
+      // Linha de recreio para dias de 5 aulas (seg/qui)
+      html+=`<tr>`;
+      html+=`<td style="padding:4px;background:var(--card2);font-size:.62rem;color:var(--text3);font-style:italic;text-align:center;border-radius:6px"><svg viewBox="0 0 24 24" style="width:10px;height:10px;vertical-align:-1px;stroke:currentColor;fill:none;stroke-width:2"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg></td>`;
+      for(let di=0;di<5;di++){
+        if(isLongo[di]){
+          html+=`<td style="padding:4px;background:var(--card2);text-align:center;font-size:.62rem;color:var(--text3);font-style:italic;border-radius:6px">Recreio · 20 min</td>`;
+        } else {
+          html+=`<td style="padding:4px;border-radius:6px"></td>`;
+        }
+      }
+      html+=`</tr>`;
+    }
+
+    html+=`<tr>`;
+    const hLongo=horas.longo[a]||'';
+    const hNormal=horas.normal[a]||'';
+    const horaLabel=hLongo||hNormal;
+    let horaFim='';
+    if(horaLabel){
+      const [hh,mm]=horaLabel.split(':').map(Number);
+      const totalMin=hh*60+mm+60;
+      horaFim=String(Math.floor(totalMin/60))+':'+String(totalMin%60).padStart(2,'0');
+    }
+    html+=`<td>A${a+1}<br><span class="cell-hora">${horaLabel}${horaFim?' - '+horaFim:''}</span></td>`;
+
+    for(let di=0;di<5;di++){
+      const max=isLongo[di]?5:4;
+      if(a>=max){
+        html+=`<td class="cell-empty">\u2014</td>`;
+        continue;
+      }
+      const info=slotInfo[di][a];
+      if(!info||info.skip){
+        continue;
+      }
+      if(!info.disc){
+        html+=`<td class="cell-empty">\u2014</td>`;
+        continue;
+      }
+
+      const cls=discClass(info.disc);
+      const extraTag=mode==='turma'?'cell-prof':'cell-turma';
+      const rs=info.rowspan||1;
+
+      if(rs>1){
+        html+=`<td class="${cls}" rowspan="${rs}" style="border-left:3px solid currentColor;vertical-align:middle">`;
+        html+=`<div class="cell-disc">${info.disc}</div>`;
+        html+=`<div class="${extraTag}">${info.extra}</div>`;
+        html+=`<div class="cell-gemea-tag"><svg viewBox="0 0 24 24"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>Aula dupla · 120 min</div>`;
+        html+=`</td>`;
+      } else {
+        html+=`<td class="${cls}"><div class="cell-disc">${info.disc}</div><div class="${extraTag}">${info.extra}</div></td>`;
+      }
+    }
+    html+=`</tr>`;
+  }
+
+  html+=`</tbody></table></div>`;
+
+  // Legenda
+  html+=`<div class="legenda">`;
+  const legs=[['d-port','Português'],['d-mat','Matemática'],['d-cien','Ciências'],['d-hist','História'],['d-geo','Geografia'],['d-ing','Inglês'],['d-art','Arte'],['d-ef','Ed. Física'],['d-rel','Ens. Religioso'],['d-fin','Ed. Financeira'],['d-let','Letramento']];
+  legs.forEach(([c,n])=>html+=`<div class="leg-item"><div class="leg-dot ${c}"></div>${n}</div>`);
+  html+=`</div></div>`;
+
+  document.getElementById('schedule-area').innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FIREBASE — Carregar dados do Firestore (substituir hardcoded)
+// ══════════════════════════════════════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const fbCfg={apiKey:"AIzaSyD_IoIlMiPvDRoJJWM2_LMg6cZQqcB7tao",authDomain:"mira-b17cb.firebaseapp.com",projectId:"mira-b17cb",storageBucket:"mira-b17cb.firebasestorage.app",messagingSenderId:"989601201413",appId:"1:989601201413:web:e81c9f2455c908a5594b6c"};
+const fbApp=initializeApp(fbCfg);
+const fbDb=getFirestore(fbApp);
+
+async function carregarDoFirestore(){
+  try{
+    const snap=await getDoc(doc(fbDb,'configuracoes','horarios'));
+    if(!snap.exists())return false;
+    const d=snap.data();
+    let loaded=false;
+    if(d.manha_turmas&&typeof d.manha_turmas==='object'){
+      HORARIOS_MANHA.turmas=d.manha_turmas;
+      loaded=true;
+      console.log('[MIRA] Manha carregada do Firestore:',Object.keys(d.manha_turmas).length,'turmas');
+    }
+    if(d.tarde_turmas&&typeof d.tarde_turmas==='object'){
+      HORARIOS_TARDE.turmas=d.tarde_turmas;
+      loaded=true;
+      console.log('[MIRA] Tarde carregada do Firestore:',Object.keys(d.tarde_turmas).length,'turmas');
+    }
+    if(loaded){
+      // Reconstruir indice de professores com novos dados
+      Object.keys(PROFS).forEach(k=>delete PROFS[k]);
+      const newProfs=buildProfIndex();
+      Object.assign(PROFS,newProfs);
+    }
+    return loaded;
+  }catch(e){
+    console.warn('[MIRA] Firestore indisponivel, usando dados locais:',e.message);
+    return false;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',async()=>{
+  document.getElementById('yr').textContent=new Date().getFullYear();
+  // Tentar carregar do Firestore primeiro, senao usar hardcoded
+  await carregarDoFirestore();
+  renderGrid();
+});
+</script>
+</body>
+</html>
